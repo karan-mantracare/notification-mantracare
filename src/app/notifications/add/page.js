@@ -4,9 +4,10 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useNotifications } from "@/context/NotificationContext";
 import dynamic from "next/dynamic";
-import { ArrowLeft, Save, Smartphone, Mail, MessageSquare, Info, Monitor, X, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Save, Smartphone, Mail, MessageSquare, Info, Monitor, X, ChevronDown, ChevronUp, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import "react-quill-new/dist/quill.snow.css";
+import toast from "react-hot-toast";
 
 // Dynamically import ReactQuill to prevent SSR issues
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
@@ -127,6 +128,7 @@ function AddNotificationContent() {
   const [isTriggerOpen, setIsTriggerOpen] = useState(true);
   const [isContentSetupOpen, setIsContentSetupOpen] = useState(true);
   const [isConditionsOpen, setIsConditionsOpen] = useState(true);
+  const [errors, setErrors] = useState({});
 
   const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
   const [corporateDropdownOpen, setCorporateDropdownOpen] = useState(false);
@@ -174,19 +176,28 @@ function AddNotificationContent() {
   };
 
   const handleSave = () => {
-    if (!formData.name) return alert("Please enter a name");
+    const newErrors = {};
+    if (!formData.name) newErrors.name = "Please enter a name";
 
     if (formData.type === "Email") {
-      if (!formData.emailSubject.trim()) return alert("Please enter an email subject");
+      if (!formData.emailSubject.trim()) newErrors.emailSubject = "Please enter an email subject";
 
       // React Quill often leaves empty paragraph tags when "empty"
       const strippedContent = formData.emailContent.replace(/(<([^>]+)>)/gi, "").trim();
-      if (!strippedContent) return alert("Please enter the email content");
+      if (!strippedContent) newErrors.emailContent = "Please enter the email content";
     }
 
     if (formData.type === "SMS" && !formData.smsContent.trim()) {
-      return alert("Please enter the SMS content");
+      newErrors.smsContent = "Please enter the SMS content";
     }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please fix the errors before saving.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    setErrors({});
 
     let formattedTrigger = "";
     if (isBulk) {
@@ -242,8 +253,10 @@ function AddNotificationContent() {
 
     if (editId) {
       updateNotification(Number(editId), payload);
+      toast.success("Notification updated successfully!");
     } else {
       addNotification(payload);
+      toast.success("Notification created successfully!");
     }
 
     router.push("/notifications");
@@ -255,9 +268,16 @@ function AddNotificationContent() {
         <Link href="/notifications" className="btn btn-outline" style={{ padding: "0.5rem" }}>
           <ArrowLeft size={18} />
         </Link>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)" }}>
-          {isBulk ? "Add Bulk Campaign" : (editId ? "Edit Notification" : "Add New Notification")}
-        </h1>
+        <div>
+          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "0.25rem", marginBottom: "0.1rem" }}>
+            <Link href="/notifications" style={{ textDecoration: "none", color: "inherit" }} className="hover:text-[var(--primary)] transition-colors">Notifications</Link>
+            <ChevronRight size={12} />
+            <span style={{ color: "var(--dark)" }}>{editId ? "Edit" : "New"}</span>
+          </div>
+          <h1 style={{ fontSize: "1.25rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>
+            {isBulk ? "Add Bulk Campaign" : (editId ? "Edit Notification" : "Add New Notification")}
+          </h1>
+        </div>
 
         <div style={{ marginLeft: "auto" }}>
           <button className="btn btn-primary" onClick={handleSave}>
@@ -454,7 +474,8 @@ function AddNotificationContent() {
 
                 <div className="input-group">
                   <label>Email Subject</label>
-                  <input type="text" className="form-control" name="emailSubject" value={formData.emailSubject} onChange={handleChange} placeholder="Enter subject line..." />
+                  <input type="text" className={`form-control ${errors.emailSubject ? 'has-error' : ''}`} style={errors.emailSubject ? {borderColor: "var(--danger)"} : {}} name="emailSubject" value={formData.emailSubject} onChange={handleChange} placeholder="Enter subject line..." />
+                  {errors.emailSubject && <span style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "-0.2rem" }}>{errors.emailSubject}</span>}
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "0.5rem" }}>
@@ -479,7 +500,7 @@ function AddNotificationContent() {
                 </div>
 
                 {emailInputMode === "Text" ? (
-                  <div style={{ border: "1px solid var(--border-color)", borderRadius: "0.375rem", overflow: "hidden" }}>
+                  <div style={{ border: `1px solid ${errors.emailContent ? 'var(--danger)' : 'var(--border-color)'}`, borderRadius: "0.375rem", overflow: "hidden" }}>
                     <ReactQuill
                       theme="snow"
                       value={formData.emailContent}
@@ -490,12 +511,13 @@ function AddNotificationContent() {
                 ) : (
                   <textarea
                     className="form-control"
-                    style={{ minHeight: "240px", width: "100%", fontFamily: "monospace", padding: "1rem", whiteSpace: "pre-wrap" }}
+                    style={{ minHeight: "240px", width: "100%", fontFamily: "monospace", padding: "1rem", whiteSpace: "pre-wrap", borderColor: errors.emailContent ? "var(--danger)" : "var(--border-color)" }}
                     value={formData.emailContent}
                     onChange={(e) => setFormData({ ...formData, emailContent: e.target.value })}
                     placeholder={`<!DOCTYPE html>\n<html>\n  <head></head>\n  <body>\n    <h1>Hello World</h1>\n    <p>Your content here.</p>\n  </body>\n</html>`}
                   />
                 )}
+                {errors.emailContent && <div style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "0.2rem" }}>{errors.emailContent}</div>}
               </div>
             )}
 
@@ -511,12 +533,14 @@ function AddNotificationContent() {
                   </div>
                 </div>
                 <textarea
-                  className="form-control"
-                  style={{ minHeight: "150px", width: "100%", resize: "vertical" }}
+                  className={`form-control ${errors.smsContent ? 'has-error' : ''}`}
+                  style={{ minHeight: "150px", width: "100%", resize: "vertical", borderColor: errors.smsContent ? "var(--danger)" : "var(--border-color)" }}
                   value={formData.smsContent}
                   onChange={(e) => setFormData({ ...formData, smsContent: e.target.value })}
+                  name="smsContent"
                   placeholder="Enter SMS message..."
                 />
+                {errors.smsContent && <div style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "0.2rem" }}>{errors.smsContent}</div>}
               </div>
             )}
               </div>

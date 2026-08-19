@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNotifications } from "@/context/NotificationContext";
 import Link from "next/link";
-import { Plus, Edit, Trash2, Eye, X } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, X, BellOff, Activity, LayoutTemplate } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function NotificationsPage() {
   const { notifications, logs, triggers, deleteNotification, addTrigger } = useNotifications();
@@ -97,7 +98,10 @@ export default function NotificationsPage() {
                       className="btn btn-outline"
                       style={{ padding: "0.25rem 0.5rem", color: "var(--danger)", borderColor: "transparent" }}
                       title="Delete"
-                      onClick={() => deleteNotification(n.id)}
+                      onClick={() => {
+                        deleteNotification(n.id);
+                        toast.success("Notification deleted");
+                      }}
                     >
                       <Trash2 size={16} />
                     </button>
@@ -176,8 +180,13 @@ export default function NotificationsPage() {
           </div>
 
           {triggers.length === 0 ? (
-            <div style={{ padding: "4rem 1rem", textAlign: "center", color: "var(--text-main)", fontSize: "0.9rem" }}>
-              This container has no triggers, click the "New" button to create one.
+            <div style={{ padding: "4rem 1rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+              <LayoutTemplate size={48} style={{ color: "var(--text-muted)", opacity: 0.5, marginBottom: "0.5rem" }} />
+              <h3 style={{ color: "var(--dark)", fontSize: "1.2rem", fontWeight: "600" }}>No triggers configured</h3>
+              <p style={{ color: "var(--text-muted)", maxWidth: "400px" }}>This container has no triggers. Create one to define when your notifications should be sent.</p>
+              <button className="btn btn-primary" onClick={() => setIsCreatingTrigger(true)} style={{ marginTop: "1rem" }}>
+                Create New Trigger
+              </button>
             </div>
           ) : (
             <div style={{ overflowX: "auto" }}>
@@ -233,8 +242,12 @@ export default function NotificationsPage() {
       {activeTab === "log" && (
         <div className="card" style={{ padding: "1.5rem", minHeight: "60vh" }}>
           {logs.length === 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "50vh" }}>
-              <p style={{ color: "var(--text-muted)" }}>No logs available yet.</p>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "50vh", gap: "1rem" }}>
+              <div style={{ color: "var(--text-muted)", marginBottom: "1rem", textAlign: "center" }}>
+                <Activity size={48} style={{ margin: "0 auto", marginBottom: "1rem", opacity: 0.5 }} />
+                <h3 style={{ color: "var(--dark)", fontSize: "1.2rem", fontWeight: "600", marginBottom: "0.5rem" }}>No activity logs yet</h3>
+                <p>Logs will appear here once notifications are triggered.</p>
+              </div>
             </div>
           ) : (
             <div style={{ overflowX: "auto" }}>
