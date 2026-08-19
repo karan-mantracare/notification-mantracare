@@ -190,7 +190,7 @@ export default function AddNotificationPage() {
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
+      <div style={{ position: "sticky", top: 0, zIndex: 50, backgroundColor: "rgba(248, 250, 252, 0.9)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", gap: "1rem", padding: "1rem 0", marginBottom: "1rem", borderBottom: "1px solid var(--border-color)", margin: "-1.5rem -1.5rem 1.5rem -1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
         <Link href="/notifications" className="btn btn-outline" style={{ padding: "0.5rem" }}>
           <ArrowLeft size={18} />
         </Link>
@@ -220,17 +220,17 @@ export default function AddNotificationPage() {
               </button>
             </div>
 
-            {isBasicDetailsOpen && (
-              <div style={{ padding: "1.5rem" }}>
+            <div className={`accordion-content ${isBasicDetailsOpen ? "open" : ""}`}>
+              <div className="accordion-content-inner" style={{ padding: "1.5rem" }}>
                 <div className="input-group">
                   <label>User Type</label>
-                  <div style={{ display: "flex", gap: "1rem" }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "normal" }}>
-                      <input type="radio" name="userType" value="Client" checked={formData.userType === "Client"} onChange={handleChange} />
+                  <div style={{ display: "flex", gap: "1.5rem" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "normal", cursor: "pointer" }}>
+                      <input type="radio" name="userType" value="Client" checked={formData.userType === "Client"} onChange={handleChange} style={{ width: "16px", height: "16px", accentColor: "var(--primary)" }} />
                       Client
                     </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "normal" }}>
-                      <input type="radio" name="userType" value="Provider" checked={formData.userType === "Provider"} onChange={handleChange} />
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "normal", cursor: "pointer" }}>
+                      <input type="radio" name="userType" value="Provider" checked={formData.userType === "Provider"} onChange={handleChange} style={{ width: "16px", height: "16px", accentColor: "var(--primary)" }} />
                       Provider
                     </label>
                   </div>
@@ -246,7 +246,7 @@ export default function AddNotificationPage() {
                   <textarea className="form-control" name="description" value={formData.description} onChange={handleChange} rows="3" placeholder="Internal description..."></textarea>
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Trigger */}
@@ -262,8 +262,8 @@ export default function AddNotificationPage() {
                 </button>
               </div>
 
-              {isTriggerOpen && (
-                <div style={{ padding: "1.5rem" }}>
+              <div className={`accordion-content ${isTriggerOpen ? "open" : ""}`}>
+                <div className="accordion-content-inner" style={{ padding: "1.5rem" }}>
                   <div className="input-group" style={{ marginBottom: 0 }}>
                     <label>Trigger Event</label>
                     <select className="form-control" name="trigger" value={formData.trigger} onChange={handleChange} style={{ maxWidth: "400px" }}>
@@ -277,7 +277,7 @@ export default function AddNotificationPage() {
                     </select>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           )}
 
@@ -293,8 +293,8 @@ export default function AddNotificationPage() {
               </button>
             </div>
 
-            {isContentSetupOpen && (
-              <div style={{ padding: "1.5rem" }}>
+            <div className={`accordion-content ${isContentSetupOpen ? "open" : ""}`}>
+              <div className="accordion-content-inner" style={{ padding: "1.5rem" }}>
                 <div className="input-group">
                   <label>Type</label>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -320,53 +320,47 @@ export default function AddNotificationPage() {
             </div>
 
             {formData.type === "App" && (
-              <div className="input-group" style={{ marginTop: "1rem" }}>
-                <label>Action &gt; App Screen</label>
-                <select className="form-control" name="actionScreen" value={formData.actionScreen} onChange={handleChange}>
-                  {APP_SCREENS.map((screen) => (
-                    <option key={screen} value={screen}>{screen}</option>
-                  ))}
-                </select>
+              <div style={{ marginTop: "1.5rem" }}>
+                <div className="input-group">
+                  <label>Action (Screen)</label>
+                  <select className="form-control" name="actionScreen" value={formData.actionScreen} onChange={handleChange} style={{ maxWidth: "400px" }}>
+                    {APP_SCREENS.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
               </div>
             )}
 
             {formData.type === "Email" && (
               <div style={{ marginTop: "1rem" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
-                  <div className="input-group" style={{ marginBottom: 0 }}>
-                    <label>Email Provider</label>
-                    <select
-                      className="form-control"
-                      name="emailProvider"
-                      value={formData.emailProvider}
-                      onChange={(e) => setFormData({ ...formData, emailProvider: e.target.value, senderEmail: EMAIL_PROVIDERS[e.target.value][0] })}
-                    >
-                      {Object.keys(EMAIL_PROVIDERS).map(p => <option key={p} value={p}>{p}</option>)}
-                    </select>
-                  </div>
-                  <div className="input-group" style={{ marginBottom: 0 }}>
-                    <label>Sender Email ID</label>
-                    <select
-                      className="form-control"
-                      name="senderEmail"
-                      value={formData.senderEmail}
-                      onChange={handleChange}
-                    >
-                      {EMAIL_PROVIDERS[formData.emailProvider].map(email => <option key={email} value={email}>{email}</option>)}
-                    </select>
-                  </div>
+                <div className="input-group">
+                  <label>Sender Email</label>
+                  <select className="form-control" name="senderEmail" value={formData.senderEmail} onChange={handleChange} style={{ maxWidth: "400px" }}>
+                    {EMAIL_PROVIDERS[formData.emailProvider].map(email => (
+                      <option key={email} value={email}>{email}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="input-group">
-                  <label>Subject</label>
-                  <input type="text" className="form-control" name="emailSubject" value={formData.emailSubject} onChange={handleChange} placeholder="Email subject..." />
+                  <label>Email Subject</label>
+                  <input type="text" className="form-control" name="emailSubject" value={formData.emailSubject} onChange={handleChange} placeholder="Enter subject line..." />
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                  <label style={{ fontWeight: "500", fontSize: "0.875rem" }}>Email Template</label>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <button className={`btn ${emailInputMode === "Text" ? "btn-primary" : "btn-outline"}`} style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem" }} onClick={() => setEmailInputMode("Text")}>Text</button>
-                    <button className={`btn ${emailInputMode === "Code" ? "btn-primary" : "btn-outline"}`} style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem" }} onClick={() => setEmailInputMode("Code")}>Code</button>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "0.5rem" }}>
+                  <label style={{ fontWeight: "500", fontSize: "0.875rem" }}>Email Content</label>
+                  <div style={{ display: "flex", backgroundColor: "#f1f5f9", borderRadius: "4px", padding: "2px" }}>
+                    <button
+                      style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "2px", backgroundColor: emailInputMode === "Text" ? "white" : "transparent", boxShadow: emailInputMode === "Text" ? "0 1px 2px rgba(0,0,0,0.1)" : "none", color: emailInputMode === "Text" ? "var(--dark)" : "var(--text-muted)" }}
+                      onClick={() => setEmailInputMode("Text")}
+                    >
+                      Visual
+                    </button>
+                    <button
+                      style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "2px", backgroundColor: emailInputMode === "HTML" ? "white" : "transparent", boxShadow: emailInputMode === "HTML" ? "0 1px 2px rgba(0,0,0,0.1)" : "none", color: emailInputMode === "HTML" ? "var(--dark)" : "var(--text-muted)" }}
+                      onClick={() => setEmailInputMode("HTML")}
+                    >
+                      Code
+                    </button>
                   </div>
                 </div>
 
@@ -375,8 +369,8 @@ export default function AddNotificationPage() {
                     <ReactQuill
                       theme="snow"
                       value={formData.emailContent}
-                      onChange={(val) => setFormData({ ...formData, emailContent: val })}
-                      style={{ height: "200px", marginBottom: "40px" }}
+                      onChange={(content) => setFormData({ ...formData, emailContent: content })}
+                      style={{ height: "200px", border: "none" }}
                     />
                   </div>
                 ) : (
@@ -388,12 +382,6 @@ export default function AddNotificationPage() {
                     placeholder={`<!DOCTYPE html>\n<html>\n  <head></head>\n  <body>\n    <h1>Hello World</h1>\n    <p>Your content here.</p>\n  </body>\n</html>`}
                   />
                 )}
-
-                <div style={{ marginTop: "1rem", display: "flex", justifyContent: "flex-end" }}>
-                  <button className="btn btn-outline" onClick={() => setShowPreviewModal(true)}>
-                    Preview Layout
-                  </button>
-                </div>
               </div>
             )}
 
@@ -415,7 +403,7 @@ export default function AddNotificationPage() {
               </div>
             )}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Conditions */}
@@ -432,9 +420,8 @@ export default function AddNotificationPage() {
               </button>
             </div>
 
-            {isConditionsOpen && (
-              <>
-                <div style={{ padding: "1.5rem", paddingTop: "1.5rem" }}>
+            <div className={`accordion-content ${isConditionsOpen ? "open" : ""}`}>
+              <div className="accordion-content-inner" style={{ padding: "1.5rem" }}>
 
               <div style={{ display: "grid", gridTemplateColumns: isBulk ? "1fr" : "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem", paddingBottom: "1.5rem", borderBottom: "1px solid var(--border-color)", alignItems: "end" }}>
                 {!isBulk && (
@@ -452,7 +439,7 @@ export default function AddNotificationPage() {
                 )}
 
                 {/* Toggle Row */}
-                <div style={{ backgroundColor: "#f8fafc", borderRadius: "0.5rem", padding: "1rem 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ backgroundColor: "#f8fafc", borderRadius: "0.5rem", padding: "1rem 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid var(--border-color)" }}>
                   <div>
                     <div style={{ fontWeight: "600", color: "var(--dark)", marginBottom: "0.2rem", fontSize: "0.95rem" }}>Visible to all corporates</div>
                     <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Enable to show this event to every corporate division</div>
@@ -480,27 +467,45 @@ export default function AddNotificationPage() {
                     Target Corporates
                   </label>
                   <div
+                    style={{
+                      padding: "0.75rem 1rem",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "0.5rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      cursor: formData.visibleToAll ? "not-allowed" : "pointer",
+                      backgroundColor: formData.visibleToAll ? "#f1f5f9" : "white",
+                      color: formData.visibleToAll ? "#94a3b8" : "var(--dark)"
+                    }}
                     onClick={() => !formData.visibleToAll && setCorporateDropdownOpen(!corporateDropdownOpen)}
-                    style={{ border: "1px solid var(--border-color)", borderRadius: "0.375rem", padding: "0.75rem 1rem", cursor: formData.visibleToAll ? "not-allowed" : "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: formData.visibleToAll ? "#f8fafc" : "white" }}
                   >
-                    <span style={{ color: formData.visibleToAll ? "var(--text-muted)" : (formData.selectedCorporates.length ? "var(--dark)" : "var(--text-main)") }}>
-                      {formData.visibleToAll ? "All Corporates Selected" : (formData.selectedCorporates.length > 0 ? `${formData.selectedCorporates.length} selected` : "Select corporates")}
+                    <span style={{ fontSize: "0.9rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {formData.selectedCorporates.length > 0 
+                        ? `${formData.selectedCorporates.length} selected`
+                        : "Select corporates"}
                     </span>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--dark)", transform: corporateDropdownOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}><path d="m6 9 6 6 6-6" /></svg>
+                    <ChevronDown size={16} color="var(--text-muted)" />
                   </div>
-
+                  
                   {corporateDropdownOpen && !formData.visibleToAll && (
-                    <div style={{ position: "absolute", bottom: "100%", left: 0, right: 0, marginBottom: "4px", backgroundColor: "white", border: "1px solid var(--border-color)", borderRadius: "0.375rem", boxShadow: "0 -4px 6px -1px rgba(0,0,0,0.1)", zIndex: 10, maxHeight: "200px", overflowY: "auto" }}>
+                    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: "4px", backgroundColor: "white", border: "1px solid var(--border-color)", borderRadius: "0.5rem", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", zIndex: 10, maxHeight: "250px", overflowY: "auto" }}>
+                      <div style={{ padding: "0.5rem", borderBottom: "1px solid #f1f5f9" }}>
+                        <input type="text" placeholder="Search..." style={{ width: "100%", padding: "0.5rem", border: "1px solid var(--border-color)", borderRadius: "4px", outline: "none", fontSize: "0.85rem" }} />
+                      </div>
                       {CORPORATES.map(corp => (
-                        <label key={corp} style={{ display: "flex", alignItems: "center", padding: "0.75rem 1rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9" }}>
-                          <input
+                        <label key={corp} style={{ display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer", fontSize: "0.9rem", color: "var(--dark)", padding: "0.75rem 1rem", borderBottom: "1px solid #f8fafc", transition: "background-color 0.1s" }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
+                          <input 
                             type="checkbox"
-                            style={{ marginRight: "0.75rem", width: "1rem", height: "1rem" }}
                             checked={formData.selectedCorporates.includes(corp)}
                             onChange={(e) => {
-                              if (e.target.checked) setFormData({ ...formData, selectedCorporates: [...formData.selectedCorporates, corp] });
-                              else setFormData({ ...formData, selectedCorporates: formData.selectedCorporates.filter(c => c !== corp) });
+                              if (e.target.checked) {
+                                setFormData({ ...formData, selectedCorporates: [...formData.selectedCorporates, corp] });
+                              } else {
+                                setFormData({ ...formData, selectedCorporates: formData.selectedCorporates.filter(c => c !== corp) });
+                              }
                             }}
+                            style={{ width: "16px", height: "16px", accentColor: "var(--primary)", cursor: "pointer" }}
                           />
                           {corp}
                         </label>
@@ -515,27 +520,41 @@ export default function AddNotificationPage() {
                     Visible to Services (B2C)
                   </label>
                   <div
+                    style={{
+                      padding: "0.75rem 1rem",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "0.5rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      cursor: "pointer",
+                      backgroundColor: "white"
+                    }}
                     onClick={() => setServiceDropdownOpen(!serviceDropdownOpen)}
-                    style={{ border: "1px solid var(--border-color)", borderRadius: "0.375rem", padding: "0.75rem 1rem", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "white" }}
                   >
-                    <span style={{ color: formData.selectedServices.length ? "var(--dark)" : "var(--text-main)" }}>
-                      {formData.selectedServices.length > 0 ? `${formData.selectedServices.length} selected` : "Select services"}
+                    <span style={{ fontSize: "0.9rem", color: "var(--dark)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {formData.selectedServices.length > 0 
+                        ? `${formData.selectedServices.length} selected`
+                        : "Select services"}
                     </span>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--dark)", transform: serviceDropdownOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}><path d="m6 9 6 6 6-6" /></svg>
+                    <ChevronDown size={16} color="var(--text-muted)" />
                   </div>
-
+                  
                   {serviceDropdownOpen && (
-                    <div style={{ position: "absolute", bottom: "100%", left: 0, right: 0, marginBottom: "4px", backgroundColor: "white", border: "1px solid var(--border-color)", borderRadius: "0.375rem", boxShadow: "0 -4px 6px -1px rgba(0,0,0,0.1)", zIndex: 10, maxHeight: "200px", overflowY: "auto" }}>
-                      {["Therapy", "Physio", "Diet", "All"].map(service => (
-                        <label key={service} style={{ display: "flex", alignItems: "center", padding: "0.75rem 1rem", cursor: "pointer", borderBottom: "1px solid #f1f5f9" }}>
-                          <input
+                    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: "4px", backgroundColor: "white", border: "1px solid var(--border-color)", borderRadius: "0.5rem", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", zIndex: 10, maxHeight: "250px", overflowY: "auto" }}>
+                      {["Therapy", "Psychiatry", "Couples", "Teen", "Diet", "Physio", "Sleep", "Yoga"].map(service => (
+                        <label key={service} style={{ display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer", fontSize: "0.9rem", color: "var(--dark)", padding: "0.75rem 1rem", borderBottom: "1px solid #f8fafc", transition: "background-color 0.1s" }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
+                          <input 
                             type="checkbox"
-                            style={{ marginRight: "0.75rem", width: "1rem", height: "1rem" }}
                             checked={formData.selectedServices.includes(service)}
                             onChange={(e) => {
-                              if (e.target.checked) setFormData({ ...formData, selectedServices: [...formData.selectedServices, service] });
-                              else setFormData({ ...formData, selectedServices: formData.selectedServices.filter(s => s !== service) });
+                              if (e.target.checked) {
+                                setFormData({ ...formData, selectedServices: [...formData.selectedServices, service] });
+                              } else {
+                                setFormData({ ...formData, selectedServices: formData.selectedServices.filter(s => s !== service) });
+                              }
                             }}
+                            style={{ width: "16px", height: "16px", accentColor: "var(--primary)", cursor: "pointer" }}
                           />
                           {service}
                         </label>
@@ -545,15 +564,6 @@ export default function AddNotificationPage() {
                 </div>
 
               </div>
-            </div>
-
-            {isBulk && (
-              <div style={{ padding: "0 1.5rem 1.5rem" }}>
-                <h2 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "1.5rem", color: "var(--dark)", borderTop: "1px solid var(--border-color)", paddingTop: "1.5rem" }}>
-                  Campaign Scheduling
-                </h2>
-
-                {/* Event Type */}
                 <div style={{ marginBottom: "2rem" }}>
                   <label style={{ display: "block", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase", marginBottom: "0.5rem" }}>
                     Event Type
@@ -743,9 +753,7 @@ export default function AddNotificationPage() {
                   </div>
                 )}
               </div>
-            )}
-              </>
-            )}
+            </div>
 
           </div>
 

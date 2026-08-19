@@ -70,13 +70,13 @@ export default function NotificationsPage() {
           </thead>
           <tbody>
             {data.map((n) => (
-              <tr key={n.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                <td style={{ padding: "1rem", fontWeight: "600", color: "var(--primary)" }}>#{n.id}</td>
-                <td style={{ padding: "1rem" }}>{n.category || "Client"}</td>
-                <td style={{ padding: "1rem", fontWeight: "500" }}>{n.description}</td>
-                <td style={{ padding: "1rem", color: "var(--text-muted)" }}>{n.trigger}</td>
-                <td style={{ padding: "1rem", color: "var(--text-muted)" }}>{n.action}</td>
-                <td style={{ padding: "1rem", textAlign: "right" }}>
+              <tr key={n.id} className="table-row">
+                <td style={{ fontWeight: "600", color: "var(--primary)" }}>#{n.id}</td>
+                <td>{n.category || "Client"}</td>
+                <td style={{ fontWeight: "500" }}>{n.description}</td>
+                <td style={{ color: "var(--text-muted)" }}>{n.trigger}</td>
+                <td style={{ color: "var(--text-muted)" }}>{n.action}</td>
+                <td style={{ textAlign: "right" }}>
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
                     <Link href={`/notifications/add?id=${n.id}`} className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", display: "inline-flex" }} title="Edit">
                       <Edit size={16} />
@@ -126,59 +126,57 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-        <button
-          className={`btn ${activeTab === "triggers" ? "btn-primary" : "btn-outline"}`}
-          onClick={() => setActiveTab("triggers")}
-        >
-          Triggers
-        </button>
-        <button
-          className={`btn ${activeTab === "notifications" ? "btn-primary" : "btn-outline"}`}
-          onClick={() => setActiveTab("notifications")}
-        >
-          Notification
-        </button>
-        <button
-          className={`btn ${activeTab === "log" ? "btn-primary" : "btn-outline"}`}
-          onClick={() => setActiveTab("log")}
-        >
-          Log
-        </button>
-      </div>
-
-      {activeTab === "notifications" && (
-        <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border-color)", paddingBottom: "0.5rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.5rem" }}>
+        <div style={{ display: "inline-flex", backgroundColor: "#f1f5f9", padding: "0.25rem", borderRadius: "0.5rem", width: "fit-content" }}>
           <button
-            className={`btn ${subTab === "app" ? "btn-primary" : "btn-outline"}`}
-            style={{ border: "none", backgroundColor: subTab === "app" ? "var(--primary)" : "transparent", color: subTab === "app" ? "white" : "var(--text-main)" }}
-            onClick={() => setSubTab("app")}
+            style={{ padding: "0.5rem 1.25rem", borderRadius: "0.375rem", fontSize: "0.9rem", fontWeight: "500", color: activeTab === "triggers" ? "var(--dark)" : "var(--text-muted)", backgroundColor: activeTab === "triggers" ? "white" : "transparent", boxShadow: activeTab === "triggers" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
+            onClick={() => setActiveTab("triggers")}
           >
-            App
+            Triggers
           </button>
           <button
-            className={`btn ${subTab === "mobile" ? "btn-primary" : "btn-outline"}`}
-            style={{ border: "none", backgroundColor: subTab === "mobile" ? "var(--primary)" : "transparent", color: subTab === "mobile" ? "white" : "var(--text-main)" }}
-            onClick={() => setSubTab("mobile")}
+            style={{ padding: "0.5rem 1.25rem", borderRadius: "0.375rem", fontSize: "0.9rem", fontWeight: "500", color: activeTab === "notifications" ? "var(--dark)" : "var(--text-muted)", backgroundColor: activeTab === "notifications" ? "white" : "transparent", boxShadow: activeTab === "notifications" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
+            onClick={() => setActiveTab("notifications")}
           >
-            Mobile
+            Notification
           </button>
           <button
-            className={`btn ${subTab === "email" ? "btn-primary" : "btn-outline"}`}
-            style={{ border: "none", backgroundColor: subTab === "email" ? "var(--primary)" : "transparent", color: subTab === "email" ? "white" : "var(--text-main)" }}
-            onClick={() => setSubTab("email")}
+            style={{ padding: "0.5rem 1.25rem", borderRadius: "0.375rem", fontSize: "0.9rem", fontWeight: "500", color: activeTab === "log" ? "var(--dark)" : "var(--text-muted)", backgroundColor: activeTab === "log" ? "white" : "transparent", boxShadow: activeTab === "log" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
+            onClick={() => setActiveTab("log")}
           >
-            Email
-          </button>
-          <button
-            className={`btn ${subTab === "sms" ? "btn-primary" : "btn-outline"}`}
-            style={{ border: "none", backgroundColor: subTab === "sms" ? "var(--primary)" : "transparent", color: subTab === "sms" ? "white" : "var(--text-main)" }}
-            onClick={() => setSubTab("sms")}
-          >
-            SMS
+            Log
           </button>
         </div>
-      )}
+
+        {activeTab === "notifications" && (
+          <div style={{ display: "inline-flex", backgroundColor: "#f1f5f9", padding: "0.25rem", borderRadius: "0.5rem", width: "fit-content" }}>
+            <button
+              style={{ padding: "0.4rem 1rem", borderRadius: "0.375rem", fontSize: "0.85rem", fontWeight: "500", color: subTab === "app" ? "var(--dark)" : "var(--text-muted)", backgroundColor: subTab === "app" ? "white" : "transparent", boxShadow: subTab === "app" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
+              onClick={() => setSubTab("app")}
+            >
+              App
+            </button>
+            <button
+              style={{ padding: "0.4rem 1rem", borderRadius: "0.375rem", fontSize: "0.85rem", fontWeight: "500", color: subTab === "mobile" ? "var(--dark)" : "var(--text-muted)", backgroundColor: subTab === "mobile" ? "white" : "transparent", boxShadow: subTab === "mobile" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
+              onClick={() => setSubTab("mobile")}
+            >
+              Mobile
+            </button>
+            <button
+              style={{ padding: "0.4rem 1rem", borderRadius: "0.375rem", fontSize: "0.85rem", fontWeight: "500", color: subTab === "email" ? "var(--dark)" : "var(--text-muted)", backgroundColor: subTab === "email" ? "white" : "transparent", boxShadow: subTab === "email" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
+              onClick={() => setSubTab("email")}
+            >
+              Email
+            </button>
+            <button
+              style={{ padding: "0.4rem 1rem", borderRadius: "0.375rem", fontSize: "0.85rem", fontWeight: "500", color: subTab === "sms" ? "var(--dark)" : "var(--text-muted)", backgroundColor: subTab === "sms" ? "white" : "transparent", boxShadow: subTab === "sms" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
+              onClick={() => setSubTab("sms")}
+            >
+              SMS
+            </button>
+          </div>
+        )}
+      </div>
 
       {activeTab === "triggers" && (
         <div style={{ backgroundColor: "white", borderRadius: "8px", overflow: "hidden", border: "1px solid var(--border-color)", boxShadow: "0 1px 3px rgba(0,0,0,0.1)", marginBottom: "2rem" }}>
@@ -223,20 +221,20 @@ export default function NotificationsPage() {
                 </thead>
                 <tbody>
                   {triggers.map(trigger => (
-                    <tr key={trigger.id} style={{ borderBottom: "1px solid #f1f5f9", backgroundColor: "white" }}>
-                      <td style={{ padding: "1rem 1.5rem" }}>
+                    <tr key={trigger.id} className="table-row">
+                      <td>
                         <input type="checkbox" style={{ cursor: "pointer", width: "16px", height: "16px" }} />
                       </td>
-                      <td style={{ padding: "1rem 1.5rem", color: "#1a73e8", cursor: "pointer", fontWeight: "500" }}>{trigger.name}</td>
-                      <td style={{ padding: "1rem 1.5rem", color: "var(--text-main)" }}>{trigger.eventType}</td>
-                      <td style={{ padding: "1rem 1.5rem" }}>
+                      <td style={{ color: "var(--primary)", cursor: "pointer", fontWeight: "600" }}>{trigger.name}</td>
+                      <td style={{ color: "var(--text-main)" }}>{trigger.eventType}</td>
+                      <td>
                         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                          <span style={{ backgroundColor: "#f1f5f9", padding: "0.2rem 0.6rem", borderRadius: "4px", color: "var(--dark)", fontSize: "0.85rem" }}>{trigger.filterField}</span>
+                          <span style={{ backgroundColor: "#f1f5f9", padding: "0.2rem 0.6rem", borderRadius: "4px", color: "var(--dark)", fontSize: "0.85rem", fontWeight: "500" }}>{trigger.filterField}</span>
                           <span style={{ color: "var(--text-main)" }}>{trigger.filterCondition}</span>
                         </div>
                       </td>
-                      <td style={{ padding: "1rem 1.5rem", color: "var(--text-main)" }}>{trigger.tags}</td>
-                      <td style={{ padding: "1rem 1.5rem", color: "var(--text-main)" }}>{trigger.lastEdited}</td>
+                      <td style={{ color: "var(--text-main)" }}>{trigger.tags}</td>
+                      <td style={{ color: "var(--text-muted)" }}>{trigger.lastEdited}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -327,10 +325,12 @@ export default function NotificationsPage() {
         </div>
       )}
 
-      {/* Create Trigger Full-Screen Modal */}
+      {/* Create Trigger Drawer */}
       {isCreatingTrigger && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#f3f4f6", zIndex: 1000, display: "flex", flexDirection: "column" }}>
-          {/* Header */}
+        <>
+          <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", zIndex: 999, transition: "opacity 0.3s" }} onClick={() => setIsCreatingTrigger(false)}></div>
+          <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "600px", backgroundColor: "white", zIndex: 1000, display: "flex", flexDirection: "column", boxShadow: "-4px 0 15px rgba(0,0,0,0.1)", animation: "slideInRight 0.3s ease-out" }}>
+            {/* Header */}
           <div style={{ backgroundColor: "white", padding: "0.75rem 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-color)", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               <button style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center" }} onClick={() => setIsCreatingTrigger(false)}>
@@ -570,14 +570,8 @@ export default function NotificationsPage() {
             </div>
           )}
 
-          <style dangerouslySetInnerHTML={{
-            __html: `
-            @keyframes slideIn {
-              from { transform: translateX(100%); }
-              to { transform: translateX(0); }
-            }
-          `}} />
         </div>
+        </>
       )}
     </div>
   );
