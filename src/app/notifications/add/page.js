@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useNotifications } from "@/context/NotificationContext";
 import dynamic from "next/dynamic";
@@ -26,7 +26,7 @@ const EMAIL_PROVIDERS = {
   SES: ["donotreply@mantra.care", "donotreply@mantracare.org", "provider@mantra.care", "provider@mantracare.org"]
 };
 
-export default function AddNotificationPage() {
+function AddNotificationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");
@@ -811,5 +811,13 @@ export default function AddNotificationPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AddNotificationPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>Loading form...</div>}>
+      <AddNotificationContent />
+    </Suspense>
   );
 }
