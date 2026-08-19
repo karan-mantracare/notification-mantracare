@@ -8,7 +8,6 @@ import { Plus, Edit, Trash2, Eye, X } from "lucide-react";
 export default function NotificationsPage() {
   const { notifications, logs, triggers, deleteNotification, addTrigger } = useNotifications();
   const [activeTab, setActiveTab] = useState("triggers"); // "triggers", "notifications", "log"
-  const [subTab, setSubTab] = useState("app"); // "app", "mobile", "email", "sms"
   const [isCreatingTrigger, setIsCreatingTrigger] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -101,10 +100,7 @@ export default function NotificationsPage() {
 
   const filteredNotifications = notifications.filter(n => {
     if (activeTab === "notifications") {
-      if (subTab === "app") return n.type === "App";
-      if (subTab === "email") return n.type === "Email";
-      if (subTab === "sms") return n.type === "SMS";
-      if (subTab === "mobile") return n.type === "Mobile" || n.type === "Push";
+      return true;
     }
     return false;
   });
@@ -147,35 +143,6 @@ export default function NotificationsPage() {
             Log
           </button>
         </div>
-
-        {activeTab === "notifications" && (
-          <div style={{ display: "inline-flex", backgroundColor: "#f1f5f9", padding: "0.25rem", borderRadius: "0.5rem", width: "fit-content" }}>
-            <button
-              style={{ padding: "0.4rem 1rem", borderRadius: "0.375rem", fontSize: "0.85rem", fontWeight: "500", color: subTab === "app" ? "var(--dark)" : "var(--text-muted)", backgroundColor: subTab === "app" ? "white" : "transparent", boxShadow: subTab === "app" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
-              onClick={() => setSubTab("app")}
-            >
-              App
-            </button>
-            <button
-              style={{ padding: "0.4rem 1rem", borderRadius: "0.375rem", fontSize: "0.85rem", fontWeight: "500", color: subTab === "mobile" ? "var(--dark)" : "var(--text-muted)", backgroundColor: subTab === "mobile" ? "white" : "transparent", boxShadow: subTab === "mobile" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
-              onClick={() => setSubTab("mobile")}
-            >
-              Mobile
-            </button>
-            <button
-              style={{ padding: "0.4rem 1rem", borderRadius: "0.375rem", fontSize: "0.85rem", fontWeight: "500", color: subTab === "email" ? "var(--dark)" : "var(--text-muted)", backgroundColor: subTab === "email" ? "white" : "transparent", boxShadow: subTab === "email" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
-              onClick={() => setSubTab("email")}
-            >
-              Email
-            </button>
-            <button
-              style={{ padding: "0.4rem 1rem", borderRadius: "0.375rem", fontSize: "0.85rem", fontWeight: "500", color: subTab === "sms" ? "var(--dark)" : "var(--text-muted)", backgroundColor: subTab === "sms" ? "white" : "transparent", boxShadow: subTab === "sms" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
-              onClick={() => setSubTab("sms")}
-            >
-              SMS
-            </button>
-          </div>
-        )}
       </div>
 
       {activeTab === "triggers" && (

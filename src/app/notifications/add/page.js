@@ -60,6 +60,8 @@ function AddNotificationContent() {
     visibleToAll: false,
     selectedServices: [],
     selectedCorporates: [],
+    appNotificationType: "App Screen",
+    appTextContent: "",
   });
 
   const [isBasicDetailsOpen, setIsBasicDetailsOpen] = useState(true);
@@ -174,7 +176,7 @@ function AddNotificationContent() {
       ...formData,
       category: formData.userType,
       description: formData.name,
-      action: formData.type === "App" ? `Open App> ${formData.actionScreen}` : `${formData.type} Notification`,
+      action: formData.type === "App" ? `Open App> ${formData.appNotificationType === "App Screen" ? formData.actionScreen : "Text"}` : `${formData.type} Notification`,
       trigger: formattedTrigger,
       campaignType: isBulk ? "bulk" : "timebased",
     };
@@ -305,6 +307,13 @@ function AddNotificationContent() {
                   <Smartphone size={16} /> App Notification
                 </button>
                 <button
+                  className={`btn ${formData.type === "Mobile" ? "btn-primary" : "btn-outline"}`}
+                  onClick={() => setFormData({ ...formData, type: "Mobile" })}
+                  title="It will show in Mobile Notification pannel"
+                >
+                  <Smartphone size={16} /> Mobile Notification
+                </button>
+                <button
                   className={`btn ${formData.type === "Email" ? "btn-primary" : "btn-outline"}`}
                   onClick={() => setFormData({ ...formData, type: "Email" })}
                 >
@@ -322,10 +331,42 @@ function AddNotificationContent() {
             {formData.type === "App" && (
               <div style={{ marginTop: "1.5rem" }}>
                 <div className="input-group">
-                  <label>Action (Screen)</label>
-                  <select className="form-control" name="actionScreen" value={formData.actionScreen} onChange={handleChange} style={{ maxWidth: "400px" }}>
-                    {APP_SCREENS.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
+                  <label>App Notification Type</label>
+                  <div style={{ display: "flex", gap: "1.5rem", marginBottom: "1rem" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "normal", cursor: "pointer" }}>
+                      <input type="radio" name="appNotificationType" value="App Screen" checked={formData.appNotificationType === "App Screen"} onChange={handleChange} style={{ width: "16px", height: "16px", accentColor: "var(--primary)" }} />
+                      App Screen
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: "normal", cursor: "pointer" }}>
+                      <input type="radio" name="appNotificationType" value="Text" checked={formData.appNotificationType === "Text"} onChange={handleChange} style={{ width: "16px", height: "16px", accentColor: "var(--primary)" }} />
+                      Text
+                    </label>
+                  </div>
+                </div>
+
+                {formData.appNotificationType === "App Screen" && (
+                  <div className="input-group">
+                    <label>Action (Screen)</label>
+                    <select className="form-control" name="actionScreen" value={formData.actionScreen} onChange={handleChange} style={{ maxWidth: "400px" }}>
+                      {APP_SCREENS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                )}
+
+                {formData.appNotificationType === "Text" && (
+                  <div className="input-group">
+                    <label>Text Content</label>
+                    <textarea className="form-control" name="appTextContent" value={formData.appTextContent} onChange={handleChange} rows="4" placeholder="Enter text content..."></textarea>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {formData.type === "Mobile" && (
+              <div style={{ marginTop: "1.5rem" }}>
+                <div className="input-group">
+                  <label>Text Content</label>
+                  <textarea className="form-control" name="appTextContent" value={formData.appTextContent} onChange={handleChange} rows="4" placeholder="Enter text content..."></textarea>
                 </div>
               </div>
             )}
