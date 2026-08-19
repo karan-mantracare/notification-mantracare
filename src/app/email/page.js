@@ -18,8 +18,6 @@ const PROVIDER_INFO = {
 export default function EmailPage() {
   const [provider, setProvider] = useState("Sendgrid");
   const [senderEmail, setSenderEmail] = useState(EMAIL_PROVIDERS["Sendgrid"][0]);
-  const [trackOpens, setTrackOpens] = useState(true);
-  const [trackClicks, setTrackClicks] = useState(true);
 
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", paddingBottom: "3rem" }}>
@@ -124,52 +122,6 @@ export default function EmailPage() {
                 <div style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#10b981" }} />
                 DKIM & SPF verified for this identity.
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Section 3: Tracking Settings */}
-        <div className="card" style={{ padding: 0, overflow: "hidden", border: "1px solid var(--border-color)", borderRadius: "0.75rem", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-          <div style={{ padding: "1.5rem", borderBottom: "1px solid var(--border-color)", backgroundColor: "#f8fafc" }}>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: "600", color: "var(--dark)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <Settings size={18} color="var(--text-muted)" /> Analytics & Tracking
-            </h3>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0.25rem 0 0 0" }}>Global tracking preferences for outgoing communications.</p>
-          </div>
-          
-          <div style={{ padding: "1.5rem" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxWidth: "600px" }}>
-              
-              {/* Toggle 1 */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontWeight: "600", color: "var(--dark)", marginBottom: "0.2rem", fontSize: "0.95rem" }}>Open Tracking</div>
-                  <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Inject invisible pixels to track when emails are opened.</div>
-                </div>
-                <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-                  <input type="checkbox" style={{ display: "none" }} checked={trackOpens} onChange={(e) => setTrackOpens(e.target.checked)} />
-                  <div style={{ width: "44px", height: "24px", backgroundColor: trackOpens ? "var(--primary)" : "#cbd5e1", borderRadius: "20px", position: "relative", transition: "background-color 0.2s" }}>
-                    <div style={{ width: "18px", height: "18px", backgroundColor: "white", borderRadius: "50%", position: "absolute", top: "3px", left: trackOpens ? "23px" : "3px", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
-                  </div>
-                </label>
-              </div>
-
-              <div style={{ height: "1px", backgroundColor: "var(--border-color)", width: "100%" }} />
-
-              {/* Toggle 2 */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontWeight: "600", color: "var(--dark)", marginBottom: "0.2rem", fontSize: "0.95rem" }}>Click Tracking</div>
-                  <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Wrap links to measure click-through rates and engagement.</div>
-                </div>
-                <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-                  <input type="checkbox" style={{ display: "none" }} checked={trackClicks} onChange={(e) => setTrackClicks(e.target.checked)} />
-                  <div style={{ width: "44px", height: "24px", backgroundColor: trackClicks ? "var(--primary)" : "#cbd5e1", borderRadius: "20px", position: "relative", transition: "background-color 0.2s" }}>
-                    <div style={{ width: "18px", height: "18px", backgroundColor: "white", borderRadius: "50%", position: "absolute", top: "3px", left: trackClicks ? "23px" : "3px", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
-                  </div>
-                </label>
-              </div>
-
             </div>
           </div>
         </div>

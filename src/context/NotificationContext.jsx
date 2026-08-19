@@ -62,6 +62,18 @@ const initialNotifications = [
   }
 ];
 
+const initialTriggers = [
+  {
+    id: 1,
+    name: "thankyou page",
+    eventType: "Page View",
+    filterField: "Page URL",
+    filterCondition: "contains thanks",
+    tags: 1,
+    lastEdited: "3 years ago"
+  }
+];
+
 const initialLogs = [
   {
     id: 10045,
@@ -86,6 +98,7 @@ const initialLogs = [
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState(initialNotifications);
   const [logs, setLogs] = useState(initialLogs);
+  const [triggers, setTriggers] = useState(initialTriggers);
 
   const addNotification = (newNotification) => {
     setNotifications((prev) => {
@@ -110,9 +123,36 @@ export function NotificationProvider({ children }) {
     );
   };
 
+  const addTrigger = (newTrigger) => {
+    setTriggers((prev) => {
+      const maxId = prev.length > 0 ? Math.max(...prev.map(t => t.id)) : 0;
+      return [
+        ...prev,
+        {
+          id: maxId + 1,
+          ...newTrigger,
+        },
+      ];
+    });
+  };
+
+  const deleteTrigger = (id) => {
+    setTriggers((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const updateTrigger = (id, updatedTrigger) => {
+    setTriggers((prev) => 
+      prev.map(t => t.id === id ? { ...t, ...updatedTrigger } : t)
+    );
+  };
+
   return (
     <NotificationContext.Provider
-      value={{ notifications, logs, addNotification, deleteNotification, updateNotification }}
+      value={{ 
+        notifications, logs, triggers, 
+        addNotification, deleteNotification, updateNotification,
+        addTrigger, deleteTrigger, updateTrigger
+      }}
     >
       {children}
     </NotificationContext.Provider>
