@@ -26,6 +26,65 @@ const EMAIL_PROVIDERS = {
   SES: ["donotreply@mantra.care", "donotreply@mantracare.org", "provider@mantra.care", "provider@mantracare.org"]
 };
 
+const NOTIFICATION_VARIABLES = [
+  { label: "Client Name", value: "{{client_name}}" },
+  { label: "Order ID", value: "{{order_id}}" },
+  { label: "Provider Name", value: "{{provider_name}}" },
+  { label: "Session Date", value: "{{session_date}}" },
+  { label: "Session Time", value: "{{session_time}}" },
+  { label: "Session Link", value: "{{session_link}}" }
+];
+
+const VariableDropdown = ({ onSelect }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  return (
+    <div className="tooltip-container" ref={dropdownRef}>
+      <button 
+        type="button"
+        style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", borderRadius: "6px", backgroundColor: "white", border: "1px solid #cbd5e1", color: "#475569", display: "flex", alignItems: "center", gap: "0.3rem", cursor: "pointer", transition: "all 0.2s" }}
+        onClick={() => setIsOpen(!isOpen)}
+        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"}
+        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "white"}
+      >
+        <span style={{ fontSize: "1rem", fontWeight: "300", lineHeight: 1 }}>+</span> Variables
+      </button>
+      {isOpen && (
+        <div style={{ position: "absolute", zIndex: 100, top: "100%", right: 0, marginTop: "0.5rem", width: "320px", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)", border: "1px solid var(--border-color)", padding: "0.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.25rem" }}>
+            {NOTIFICATION_VARIABLES.map(v => (
+              <button
+                key={v.value}
+                type="button"
+                style={{ textAlign: "left", padding: "0.5rem 0.75rem", background: "none", border: "1px solid transparent", borderRadius: "6px", cursor: "pointer", display: "flex", flexDirection: "column", gap: "0.2rem", transition: "all 0.2s" }}
+                onClick={() => { onSelect(v.value); setIsOpen(false); }}
+                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = "#f8fafc"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.borderColor = "transparent"; }}
+              >
+                <span style={{ fontWeight: "500", color: "var(--dark)", fontSize: "0.8rem" }}>{v.label}</span>
+                <span style={{ color: "var(--primary)", opacity: 0.8, fontSize: "0.7rem", fontFamily: "monospace" }}>{v.value}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 function AddNotificationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -177,7 +236,7 @@ function AddNotificationContent() {
       category: formData.userType,
       description: formData.name,
       action: formData.type === "App" ? `Open App> ${formData.appNotificationType === "App Screen" ? formData.actionScreen : "Text"}` : `${formData.type} Notification`,
-      trigger: formattedTrigger,
+      displayTrigger: formattedTrigger,
       campaignType: isBulk ? "bulk" : "timebased",
     };
 
@@ -211,7 +270,7 @@ function AddNotificationContent() {
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
           {/* Basic Details */}
-          <div className="card" style={{ padding: "0", overflow: "hidden" }}>
+          <div className="card" style={{ padding: "0", overflow: "visible" }}>
             <div 
               style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", backgroundColor: "white", borderBottom: isBasicDetailsOpen ? "1px solid var(--border-color)" : "none" }}
               onClick={() => setIsBasicDetailsOpen(!isBasicDetailsOpen)}
@@ -223,7 +282,8 @@ function AddNotificationContent() {
             </div>
 
             <div className={`accordion-content ${isBasicDetailsOpen ? "open" : ""}`}>
-              <div className="accordion-content-inner" style={{ padding: "1.5rem" }}>
+              <div className="accordion-content-inner">
+                <div style={{ padding: "1.5rem" }}>
                 <div className="input-group">
                   <label>User Type</label>
                   <div style={{ display: "flex", gap: "1.5rem" }}>
@@ -247,13 +307,14 @@ function AddNotificationContent() {
                   <label>Description</label>
                   <textarea className="form-control" name="description" value={formData.description} onChange={handleChange} rows="3" placeholder="Internal description..."></textarea>
                 </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Trigger */}
           {!isBulk && (
-            <div className="card" style={{ padding: "0", overflow: "hidden" }}>
+            <div className="card" style={{ padding: "0", overflow: "visible" }}>
               <div 
                 style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", backgroundColor: "white", borderBottom: isTriggerOpen ? "1px solid var(--border-color)" : "none" }}
                 onClick={() => setIsTriggerOpen(!isTriggerOpen)}
@@ -265,7 +326,8 @@ function AddNotificationContent() {
               </div>
 
               <div className={`accordion-content ${isTriggerOpen ? "open" : ""}`}>
-                <div className="accordion-content-inner" style={{ padding: "1.5rem" }}>
+                <div className="accordion-content-inner">
+                  <div style={{ padding: "1.5rem" }}>
                   <div className="input-group" style={{ marginBottom: 0 }}>
                     <label>Trigger Event</label>
                     <select className="form-control" name="trigger" value={formData.trigger} onChange={handleChange} style={{ maxWidth: "400px" }}>
@@ -278,13 +340,14 @@ function AddNotificationContent() {
                       )}
                     </select>
                   </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {/* Content Setup */}
-          <div className="card" style={{ padding: "0", overflow: "hidden" }}>
+          <div className="card" style={{ padding: "0", overflow: "visible" }}>
             <div 
               style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", backgroundColor: "white", borderBottom: isContentSetupOpen ? "1px solid var(--border-color)" : "none" }}
               onClick={() => setIsContentSetupOpen(!isContentSetupOpen)}
@@ -296,7 +359,8 @@ function AddNotificationContent() {
             </div>
 
             <div className={`accordion-content ${isContentSetupOpen ? "open" : ""}`}>
-              <div className="accordion-content-inner" style={{ padding: "1.5rem" }}>
+              <div className="accordion-content-inner">
+                <div style={{ padding: "1.5rem" }}>
                 <div className="input-group">
                   <label>Type</label>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -355,7 +419,10 @@ function AddNotificationContent() {
 
                 {formData.appNotificationType === "Text" && (
                   <div className="input-group">
-                    <label>Text Content</label>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "0.5rem" }}>
+                      <label style={{ marginBottom: 0 }}>Text Content</label>
+                      <VariableDropdown onSelect={(v) => setFormData(f => ({ ...f, appTextContent: f.appTextContent + v }))} />
+                    </div>
                     <textarea className="form-control" name="appTextContent" value={formData.appTextContent} onChange={handleChange} rows="4" placeholder="Enter text content..."></textarea>
                   </div>
                 )}
@@ -365,7 +432,10 @@ function AddNotificationContent() {
             {formData.type === "Mobile" && (
               <div style={{ marginTop: "1.5rem" }}>
                 <div className="input-group">
-                  <label>Text Content</label>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "0.5rem" }}>
+                    <label style={{ marginBottom: 0 }}>Text Content</label>
+                    <VariableDropdown onSelect={(v) => setFormData(f => ({ ...f, appTextContent: f.appTextContent + v }))} />
+                  </div>
                   <textarea className="form-control" name="appTextContent" value={formData.appTextContent} onChange={handleChange} rows="4" placeholder="Enter text content..."></textarea>
                 </div>
               </div>
@@ -388,20 +458,23 @@ function AddNotificationContent() {
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "0.5rem" }}>
-                  <label style={{ fontWeight: "500", fontSize: "0.875rem" }}>Email Content</label>
-                  <div style={{ display: "flex", backgroundColor: "#f1f5f9", borderRadius: "4px", padding: "2px" }}>
-                    <button
-                      style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "2px", backgroundColor: emailInputMode === "Text" ? "white" : "transparent", boxShadow: emailInputMode === "Text" ? "0 1px 2px rgba(0,0,0,0.1)" : "none", color: emailInputMode === "Text" ? "var(--dark)" : "var(--text-muted)" }}
-                      onClick={() => setEmailInputMode("Text")}
-                    >
-                      Visual
-                    </button>
-                    <button
-                      style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "2px", backgroundColor: emailInputMode === "HTML" ? "white" : "transparent", boxShadow: emailInputMode === "HTML" ? "0 1px 2px rgba(0,0,0,0.1)" : "none", color: emailInputMode === "HTML" ? "var(--dark)" : "var(--text-muted)" }}
-                      onClick={() => setEmailInputMode("HTML")}
-                    >
-                      Code
-                    </button>
+                  <label style={{ fontWeight: "500", fontSize: "0.875rem", marginBottom: 0 }}>Email Content</label>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <VariableDropdown onSelect={(v) => setFormData(f => ({ ...f, emailContent: f.emailContent + v }))} />
+                    <div style={{ display: "flex", backgroundColor: "#f1f5f9", borderRadius: "4px", padding: "2px" }}>
+                      <button
+                        style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "2px", backgroundColor: emailInputMode === "Text" ? "white" : "transparent", boxShadow: emailInputMode === "Text" ? "0 1px 2px rgba(0,0,0,0.1)" : "none", color: emailInputMode === "Text" ? "var(--dark)" : "var(--text-muted)" }}
+                        onClick={() => setEmailInputMode("Text")}
+                      >
+                        Visual
+                      </button>
+                      <button
+                        style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "2px", backgroundColor: emailInputMode === "HTML" ? "white" : "transparent", boxShadow: emailInputMode === "HTML" ? "0 1px 2px rgba(0,0,0,0.1)" : "none", color: emailInputMode === "HTML" ? "var(--dark)" : "var(--text-muted)" }}
+                        onClick={() => setEmailInputMode("HTML")}
+                      >
+                        Code
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -428,11 +501,14 @@ function AddNotificationContent() {
 
             {formData.type === "SMS" && (
               <div style={{ marginTop: "1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                  <label style={{ fontWeight: "500", fontSize: "0.875rem" }}>SMS Content</label>
-                  <span style={{ fontSize: "0.75rem", color: formData.smsContent.length > 160 ? "var(--danger)" : "var(--text-muted)" }}>
-                    {formData.smsContent.length}/160 characters
-                  </span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "0.5rem" }}>
+                  <label style={{ fontWeight: "500", fontSize: "0.875rem", marginBottom: 0 }}>SMS Content</label>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <VariableDropdown onSelect={(v) => setFormData(f => ({ ...f, smsContent: f.smsContent + v }))} />
+                    <span style={{ fontSize: "0.75rem", color: formData.smsContent.length > 160 ? "var(--danger)" : "var(--text-muted)" }}>
+                      {formData.smsContent.length}/160 characters
+                    </span>
+                  </div>
                 </div>
                 <textarea
                   className="form-control"
@@ -443,6 +519,7 @@ function AddNotificationContent() {
                 />
               </div>
             )}
+              </div>
               </div>
             </div>
           </div>
@@ -462,7 +539,8 @@ function AddNotificationContent() {
             </div>
 
             <div className={`accordion-content ${isConditionsOpen ? "open" : ""}`}>
-              <div className="accordion-content-inner" style={{ padding: "1.5rem" }}>
+              <div className="accordion-content-inner">
+                <div style={{ padding: "1.5rem" }}>
 
               <div style={{ display: "grid", gridTemplateColumns: isBulk ? "1fr" : "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem", paddingBottom: "1.5rem", borderBottom: "1px solid var(--border-color)", alignItems: "end" }}>
                 {!isBulk && (
@@ -500,7 +578,7 @@ function AddNotificationContent() {
               </div>
 
               {/* Dropdowns Row */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
 
                 {/* Corporates Dropdown */}
                 <div style={{ position: "relative" }} ref={corporateDropdownRef}>
@@ -793,6 +871,7 @@ function AddNotificationContent() {
                     )}
                   </div>
                 )}
+              </div>
               </div>
             </div>
 

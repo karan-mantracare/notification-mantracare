@@ -8,6 +8,19 @@ import { Plus, Edit, Trash2, Eye, X } from "lucide-react";
 export default function NotificationsPage() {
   const { notifications, logs, triggers, deleteNotification, addTrigger } = useNotifications();
   const [activeTab, setActiveTab] = useState("triggers"); // "triggers", "notifications", "log"
+
+  useEffect(() => {
+    const savedTab = sessionStorage.getItem("notificationsActiveTab");
+    if (savedTab) {
+      setActiveTab(savedTab);
+    }
+  }, []);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    sessionStorage.setItem("notificationsActiveTab", tab);
+  };
+
   const [isCreatingTrigger, setIsCreatingTrigger] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -73,7 +86,7 @@ export default function NotificationsPage() {
                 <td style={{ fontWeight: "600", color: "var(--primary)" }}>#{n.id}</td>
                 <td>{n.category || "Client"}</td>
                 <td style={{ fontWeight: "500" }}>{n.description}</td>
-                <td style={{ color: "var(--text-muted)" }}>{n.trigger}</td>
+                <td style={{ color: "var(--text-muted)" }}>{n.displayTrigger || n.trigger}</td>
                 <td style={{ color: "var(--text-muted)" }}>{n.action}</td>
                 <td style={{ textAlign: "right" }}>
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
@@ -126,19 +139,19 @@ export default function NotificationsPage() {
         <div style={{ display: "inline-flex", backgroundColor: "#f1f5f9", padding: "0.25rem", borderRadius: "0.5rem", width: "fit-content" }}>
           <button
             style={{ padding: "0.5rem 1.25rem", borderRadius: "0.375rem", fontSize: "0.9rem", fontWeight: "500", color: activeTab === "triggers" ? "var(--dark)" : "var(--text-muted)", backgroundColor: activeTab === "triggers" ? "white" : "transparent", boxShadow: activeTab === "triggers" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
-            onClick={() => setActiveTab("triggers")}
+            onClick={() => handleTabChange("triggers")}
           >
             Triggers
           </button>
           <button
             style={{ padding: "0.5rem 1.25rem", borderRadius: "0.375rem", fontSize: "0.9rem", fontWeight: "500", color: activeTab === "notifications" ? "var(--dark)" : "var(--text-muted)", backgroundColor: activeTab === "notifications" ? "white" : "transparent", boxShadow: activeTab === "notifications" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
-            onClick={() => setActiveTab("notifications")}
+            onClick={() => handleTabChange("notifications")}
           >
             Notification
           </button>
           <button
             style={{ padding: "0.5rem 1.25rem", borderRadius: "0.375rem", fontSize: "0.9rem", fontWeight: "500", color: activeTab === "log" ? "var(--dark)" : "var(--text-muted)", backgroundColor: activeTab === "log" ? "white" : "transparent", boxShadow: activeTab === "log" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
-            onClick={() => setActiveTab("log")}
+            onClick={() => handleTabChange("log")}
           >
             Log
           </button>
