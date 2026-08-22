@@ -13,7 +13,7 @@ export default function Dashboard() {
   const [triggerFilter, setTriggerFilter] = useState("All");
   const [typeFilter, setTypeFilter] = useState("All");
 
-  const totalSent = logs.reduce((acc, log) => acc + log.sentCount, 0);
+  const totalSent = logs.filter(log => log.event === "Sent").length;
   const activeTriggersCount = triggers.length;
   const templatesCount = Object.keys(templates).length;
 
@@ -96,7 +96,7 @@ export default function Dashboard() {
 
       {/* Logs Table */}
       <div className="card" style={{ padding: "1.5rem" }}>
-        <h3 style={{ fontSize: "1.2rem", fontWeight: "600", color: "var(--dark)", marginBottom: "1.5rem", marginTop: 0 }}>Recent Campaign Deliveries</h3>
+        <h3 style={{ fontSize: "1.2rem", fontWeight: "600", color: "var(--dark)", marginBottom: "1.5rem", marginTop: 0 }}>Recent Log Events</h3>
         {logs.length === 0 ? (
           <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>
             No recent activity for {selectedCompany}.
@@ -106,9 +106,9 @@ export default function Dashboard() {
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid var(--border-color)", textAlign: "left" }}>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Campaign ID</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Type</th>
-                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Sent Count</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Log ID</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Service Type</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Sent To</th>
                   <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Status</th>
                 </tr>
               </thead>
@@ -116,11 +116,15 @@ export default function Dashboard() {
                 {logs.map((log) => (
                   <tr key={log.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td style={{ padding: "1rem", fontWeight: "600", color: "var(--primary)" }}>#{log.id}</td>
-                    <td style={{ padding: "1rem", textTransform: "capitalize", color: "var(--text-main)" }}>{log.campaignType}</td>
-                    <td style={{ padding: "1rem", fontWeight: "500", color: "var(--dark)" }}>{log.sentCount.toLocaleString()}</td>
+                    <td style={{ padding: "1rem", color: "var(--text-main)" }}>{log.serviceType}</td>
+                    <td style={{ padding: "1rem", fontWeight: "500", color: "var(--dark)" }}>{log.sentTo}</td>
                     <td style={{ padding: "1rem" }}>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.25rem 0.75rem", backgroundColor: "#dcfce7", color: "#15803d", borderRadius: "100px", fontSize: "0.8rem", fontWeight: "600" }}>
-                        <CheckCircle2 size={14} /> Delivered
+                      <span style={{ 
+                        display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.25rem 0.75rem", borderRadius: "100px", fontSize: "0.8rem", fontWeight: "600",
+                        backgroundColor: log.event === "Failed" ? "#fee2e2" : log.event === "Received" ? "#dcfce7" : log.event === "Viewed" ? "#f3e8ff" : "#e0f2fe",
+                        color: log.event === "Failed" ? "#991b1b" : log.event === "Received" ? "#166534" : log.event === "Viewed" ? "#6b21a8" : "#075985"
+                      }}>
+                        {log.event}
                       </span>
                     </td>
                   </tr>

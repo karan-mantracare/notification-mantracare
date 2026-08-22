@@ -21,8 +21,10 @@ const MOCK_DATA = {
       { id: 10046, userType: "Client", name: "Follow up after 2 days", description: "Follow up after 2 days", type: "Email", appNotificationType: "App Screen", actionScreen: "Home", action: "Email Notification", emailProvider: "Sendgrid", senderEmail: "donotreply@mantra.care", emailSubject: "Checking in on your progress!", emailContent: "<p>Hi {{client_name}}, it's been 2 days. How are you doing?</p>", smsContent: "", service: "Therapy", orderPurchased: "Yes", trigger: "signup success", displayTrigger: "2 Days post signup success [Therapy]", timing: "2 Days", eventType: "One-time", scheduleDate: "", scheduleTime: "", scheduleTimezone: "IST (GMT+5:30)", recurringFrequency: "Weekly", recurringDays: [], recurringTime: "", recurringTimezone: "IST (GMT+5:30)", monthlySchedules: [{ id: 1, date: "", time: "", timezone: "IST (GMT+5:30)" }], visibleToAll: true, selectedServices: ["Therapy"], selectedCorporates: [], appTextContent: "", campaignType: "timebased", category: "Client" },
     ],
     logs: [
-      { id: 10045, campaignType: "timebased", sentCount: 1542, deliveries: [{ userId: "USR-001", timestamp: "2026-08-18 10:30:00" }, { userId: "USR-089", timestamp: "2026-08-18 11:15:00" }] },
-      { id: 10046, campaignType: "bulk", sentCount: 8900, deliveries: [{ userId: "USR-402", timestamp: "2026-08-17 09:00:00" }, { userId: "USR-511", timestamp: "2026-08-17 09:00:05" }] }
+      { id: 1, notificationId: 10045, sentTo: "USR-001 / Device-X", serviceType: "Email", event: "Sent", timestamp: "2026-08-18 10:30:00", error: "", templateId: "TPL-892" },
+      { id: 2, notificationId: 10045, sentTo: "USR-001 / Device-X", serviceType: "Email", event: "Viewed", timestamp: "2026-08-18 10:45:00", error: "", templateId: "TPL-892" },
+      { id: 3, notificationId: 10046, sentTo: "+91 9876543210", serviceType: "SMS", event: "Failed", timestamp: "2026-08-17 09:00:00", error: "Carrier rejected", templateId: "TPL-893" },
+      { id: 4, notificationId: 10046, sentTo: "+91 9876543211", serviceType: "SMS", event: "Received", timestamp: "2026-08-17 09:00:05", error: "", templateId: "TPL-893" },
     ],
     emailSettings: {
       providers: [{ id: 1, connectionName: "MantraCare Sendgrid", provider: "Sendgrid", details: { authToken: "sg.mantracare" } }],
@@ -55,7 +57,8 @@ const MOCK_DATA = {
       { id: 2001, userType: "Client", name: "Low Credits Warning", description: "Triggered when credits < 100", type: "Email", appNotificationType: "", actionScreen: "", action: "Email Notification", emailProvider: "Sendgrid", senderEmail: "support@mantraassist.com", emailSubject: "Low Credits", emailContent: "<p>Please recharge your account.</p>", smsContent: "", service: "AI Receptionist", orderPurchased: "Yes", trigger: "low credits", displayTrigger: "Instantly on low credits", timing: "Instantly", eventType: "One-time", scheduleDate: "", scheduleTime: "", scheduleTimezone: "IST (GMT+5:30)", recurringFrequency: "", recurringDays: [], recurringTime: "", recurringTimezone: "", monthlySchedules: [], visibleToAll: true, selectedServices: [], selectedCorporates: [], appTextContent: "", campaignType: "automated", category: "Billing" },
     ],
     logs: [
-      { id: 2001, campaignType: "automated", sentCount: 345, deliveries: [{ userId: "MA-112", timestamp: "2026-08-20 14:20:00" }] }
+      { id: 5, notificationId: 2001, sentTo: "MA-112 / Web", serviceType: "App Notification", event: "Sent", timestamp: "2026-08-20 14:20:00", error: "", templateId: "TPL-304" },
+      { id: 6, notificationId: 2001, sentTo: "MA-112 / Web", serviceType: "App Notification", event: "Viewed", timestamp: "2026-08-20 15:00:00", error: "", templateId: "TPL-304" },
     ],
     emailSettings: {
       providers: [{ id: 1, connectionName: "MantraAssist SES", provider: "SES", details: { clientId: "AKIAIOSFODNN7EXAMPLE", secretKey: "wJalrXU" } }],
@@ -88,7 +91,8 @@ const MOCK_DATA = {
       { id: 3001, userType: "Patient", name: "Pre-surgery instructions", description: "Sent 2 days before surgery", type: "SMS", appNotificationType: "", actionScreen: "", action: "SMS Notification", emailProvider: "", senderEmail: "", emailSubject: "", emailContent: "", smsContent: "Please remember to fast for 12 hours before your eye surgery.", service: "Cataract Surgery", orderPurchased: "Yes", trigger: "appointment booked", displayTrigger: "2 Days before surgery", timing: "Scheduled", eventType: "One-time", scheduleDate: "", scheduleTime: "", scheduleTimezone: "IST (GMT+5:30)", recurringFrequency: "", recurringDays: [], recurringTime: "", recurringTimezone: "", monthlySchedules: [], visibleToAll: true, selectedServices: [], selectedCorporates: [], appTextContent: "", campaignType: "automated", category: "Patient" },
     ],
     logs: [
-      { id: 3001, campaignType: "automated", sentCount: 12050, deliveries: [{ userId: "PT-998", timestamp: "2026-08-21 08:00:00" }] }
+      { id: 7, notificationId: 3001, sentTo: "PT-998 / iOS", serviceType: "SMS", event: "Received", timestamp: "2026-08-21 08:00:00", error: "", templateId: "TPL-901" },
+      { id: 8, notificationId: 3001, sentTo: "PT-999 / Android", serviceType: "SMS", event: "Failed", timestamp: "2026-08-21 08:05:00", error: "Number unreachable", templateId: "TPL-901" },
     ],
     emailSettings: {
       providers: [{ id: 1, connectionName: "EyeMantra Brevo", provider: "Brevo", details: { apiKey: "xkeysib-eyemantra" } }],

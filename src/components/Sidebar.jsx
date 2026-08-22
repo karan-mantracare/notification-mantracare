@@ -29,6 +29,7 @@ const navGroups = [
     title: "Notification",
     items: [
       { label: "Dashboard", icon: LayoutDashboard, href: "/" },
+      { label: "Organization", icon: Building, href: "/organization" },
       { label: "Template", icon: LayoutTemplate, href: "/template" },
       { label: "Trigger", icon: Zap, href: "/trigger" },
       { label: "Notifications", icon: Bell, href: "/notifications" },

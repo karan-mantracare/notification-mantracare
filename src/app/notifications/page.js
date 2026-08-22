@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNotifications } from "@/context/NotificationContext";
 import Link from "next/link";
-import { Plus, Edit, Trash2, Eye, X, BellOff, Activity, LayoutTemplate } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, X, BellOff, Activity, LayoutTemplate, Bell, FileText } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function NotificationsPage() {
@@ -44,24 +44,24 @@ export default function NotificationsPage() {
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
           <thead>
-            <tr style={{ backgroundColor: "var(--dark)", color: "white", textAlign: "left" }}>
-              <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", textTransform: "uppercase" }}>ID</th>
-              <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", textTransform: "uppercase" }}>User Type</th>
-              <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", textTransform: "uppercase" }}>Name</th>
-              <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", textTransform: "uppercase" }}>Trigger / Conditions</th>
-              <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", textTransform: "uppercase" }}>Action</th>
-              <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", textTransform: "uppercase", textAlign: "right" }}>Actions</th>
+            <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--border-color)", textAlign: "left" }}>
+              <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>ID</th>
+              <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>User Type</th>
+              <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Name</th>
+              <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Trigger / Conditions</th>
+              <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Action</th>
+              <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {data.map((n) => (
-              <tr key={n.id} className="table-row">
-                <td style={{ fontWeight: "600", color: "var(--primary)" }}>#{n.id}</td>
-                <td>{n.category || "Client"}</td>
-                <td style={{ fontWeight: "500" }}>{n.description}</td>
-                <td style={{ color: "var(--text-muted)" }}>{n.displayTrigger || n.trigger}</td>
-                <td style={{ color: "var(--text-muted)" }}>{n.action}</td>
-                <td style={{ textAlign: "right" }}>
+              <tr key={n.id} style={{ borderBottom: "1px solid var(--border-color)", transition: "background-color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
+                <td style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "var(--primary)" }}>#{n.id}</td>
+                <td style={{ padding: "1rem 1.5rem" }}>{n.category || "Client"}</td>
+                <td style={{ padding: "1rem 1.5rem", fontWeight: "500" }}>{n.description}</td>
+                <td style={{ padding: "1rem 1.5rem", color: "var(--text-muted)" }}>{n.displayTrigger || n.trigger}</td>
+                <td style={{ padding: "1rem 1.5rem", color: "var(--text-muted)" }}>{n.action}</td>
+                <td style={{ padding: "1rem 1.5rem", textAlign: "right" }}>
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
                     <Link href={`/notifications/add?id=${n.id}`} className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", display: "inline-flex" }} title="Edit">
                       <Edit size={16} />
@@ -110,18 +110,42 @@ export default function NotificationsPage() {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.5rem" }}>
-        <div style={{ display: "inline-flex", backgroundColor: "#f1f5f9", padding: "0.25rem", borderRadius: "0.5rem", width: "fit-content" }}>
+        <div style={{ display: "flex", borderBottom: "1px solid var(--border-color)", width: "100%", gap: "2rem" }}>
           <button
-            style={{ padding: "0.5rem 1.25rem", borderRadius: "0.375rem", fontSize: "0.9rem", fontWeight: "500", color: activeTab === "notifications" ? "var(--dark)" : "var(--text-muted)", backgroundColor: activeTab === "notifications" ? "white" : "transparent", boxShadow: activeTab === "notifications" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
+            style={{ 
+              display: "flex", alignItems: "center", gap: "0.5rem",
+              padding: "0.75rem 0.5rem", 
+              fontSize: "1rem", 
+              fontWeight: "500", 
+              color: activeTab === "notifications" ? "var(--primary)" : "#64748b", 
+              backgroundColor: "transparent", 
+              border: "none",
+              borderBottom: activeTab === "notifications" ? "2px solid var(--primary)" : "2px solid transparent",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              marginBottom: "-1px"
+            }}
             onClick={() => handleTabChange("notifications")}
           >
-            Notification
+            <Bell size={18} /> Notification
           </button>
           <button
-            style={{ padding: "0.5rem 1.25rem", borderRadius: "0.375rem", fontSize: "0.9rem", fontWeight: "500", color: activeTab === "log" ? "var(--dark)" : "var(--text-muted)", backgroundColor: activeTab === "log" ? "white" : "transparent", boxShadow: activeTab === "log" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", transition: "all 0.2s" }}
+            style={{ 
+              display: "flex", alignItems: "center", gap: "0.5rem",
+              padding: "0.75rem 0.5rem", 
+              fontSize: "1rem", 
+              fontWeight: "500", 
+              color: activeTab === "log" ? "var(--primary)" : "#64748b", 
+              backgroundColor: "transparent", 
+              border: "none",
+              borderBottom: activeTab === "log" ? "2px solid var(--primary)" : "2px solid transparent",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              marginBottom: "-1px"
+            }}
             onClick={() => handleTabChange("log")}
           >
-            Log
+            <FileText size={18} /> Log
           </button>
         </div>
       </div>
@@ -215,22 +239,39 @@ export default function NotificationsPage() {
             </div>
           ) : (
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "1000px" }}>
                 <thead>
-                  <tr style={{ backgroundColor: "var(--dark)", color: "white", textAlign: "left" }}>
-                    <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", textTransform: "uppercase" }}>ID</th>
-                    <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", textTransform: "uppercase" }}>Type</th>
-                    <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", textTransform: "uppercase" }}>Notifications Sent Till Now</th>
-                    <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", textTransform: "uppercase", textAlign: "right" }}>Action</th>
+                  <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--border-color)", textAlign: "left" }}>
+                    <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Log ID</th>
+                    <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Notification ID</th>
+                    <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sent To</th>
+                    <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Service Type</th>
+                    <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Event</th>
+                    <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Timestamp</th>
+                    <th style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "#64748b", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {logs.map((log) => (
-                    <tr key={log.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                      <td style={{ padding: "1rem", fontWeight: "600", color: "var(--primary)" }}>#{log.id}</td>
-                      <td style={{ padding: "1rem", textTransform: "capitalize" }}>{log.campaignType}</td>
-                      <td style={{ padding: "1rem", fontWeight: "500" }}>{log.sentCount.toLocaleString()}</td>
-                      <td style={{ padding: "1rem", textAlign: "right" }}>
+                  {logs.map((log, index) => (
+                    <tr key={log.id} style={{ borderBottom: index !== logs.length - 1 ? "1px solid var(--border-color)" : "none", transition: "background-color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
+                      <td style={{ padding: "1rem 1.5rem", fontWeight: "600", color: "var(--dark)" }}>#{log.id}</td>
+                      <td style={{ padding: "1rem 1.5rem", color: "var(--primary)", fontWeight: "500" }}>#{log.notificationId}</td>
+                      <td style={{ padding: "1rem 1.5rem" }}>{log.sentTo}</td>
+                      <td style={{ padding: "1rem 1.5rem", color: "var(--text-muted)" }}>{log.serviceType}</td>
+                      <td style={{ padding: "1rem 1.5rem" }}>
+                        <span style={{ 
+                          padding: "0.25rem 0.5rem", 
+                          borderRadius: "4px", 
+                          fontSize: "0.8rem", 
+                          fontWeight: "500",
+                          backgroundColor: log.event === "Failed" ? "#fee2e2" : log.event === "Received" ? "#dcfce7" : log.event === "Viewed" ? "#f3e8ff" : "#e0f2fe",
+                          color: log.event === "Failed" ? "#991b1b" : log.event === "Received" ? "#166534" : log.event === "Viewed" ? "#6b21a8" : "#075985"
+                        }}>
+                          {log.event}
+                        </span>
+                      </td>
+                      <td style={{ padding: "1rem 1.5rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>{log.timestamp}</td>
+                      <td style={{ padding: "1rem 1.5rem", textAlign: "right" }}>
                         <button
                           className="btn btn-outline"
                           style={{ padding: "0.25rem 0.75rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
@@ -251,7 +292,7 @@ export default function NotificationsPage() {
       {/* View Log Modal */}
       {selectedLog && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div className="card" style={{ width: "600px", maxHeight: "80vh", display: "flex", flexDirection: "column" }}>
+          <div className="card" style={{ width: "500px", display: "flex", flexDirection: "column", padding: 0, overflow: "hidden", backgroundColor: "white" }}>
             <div style={{ padding: "1rem 1.5rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#f8fafc" }}>
               <h3 style={{ fontSize: "1.1rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>
                 Delivery Log: #{selectedLog.id}
@@ -260,23 +301,52 @@ export default function NotificationsPage() {
                 <X size={20} />
               </button>
             </div>
-            <div style={{ padding: "1.5rem", overflowY: "auto", flex: 1 }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ borderBottom: "2px solid var(--border-color)", textAlign: "left" }}>
-                    <th style={{ padding: "0.75rem", fontSize: "0.85rem", color: "#64748b" }}>User ID</th>
-                    <th style={{ padding: "0.75rem", fontSize: "0.85rem", color: "#64748b" }}>Timestamp</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedLog.deliveries.map((delivery, idx) => (
-                    <tr key={idx} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      <td style={{ padding: "0.75rem", fontWeight: "500" }}>{delivery.userId}</td>
-                      <td style={{ padding: "0.75rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>{new Date(delivery.timestamp).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div style={{ padding: "2rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "100px 1fr", gap: "1rem", alignItems: "center" }}>
+                <span style={{ fontWeight: "600", color: "var(--text-muted)", fontSize: "0.9rem" }}>Event Status:</span>
+                <span style={{ 
+                  padding: "0.25rem 0.75rem", 
+                  borderRadius: "4px", 
+                  fontSize: "0.85rem", 
+                  fontWeight: "600",
+                  width: "fit-content",
+                  backgroundColor: selectedLog.event === "Failed" ? "#fee2e2" : selectedLog.event === "Received" ? "#dcfce7" : selectedLog.event === "Viewed" ? "#f3e8ff" : "#e0f2fe",
+                  color: selectedLog.event === "Failed" ? "#991b1b" : selectedLog.event === "Received" ? "#166534" : selectedLog.event === "Viewed" ? "#6b21a8" : "#075985"
+                }}>
+                  {selectedLog.event}
+                </span>
+              </div>
+              
+              <div style={{ display: "grid", gridTemplateColumns: "100px 1fr", gap: "1rem", alignItems: "flex-start" }}>
+                <span style={{ fontWeight: "600", color: "var(--text-muted)", fontSize: "0.9rem" }}>Timestamp:</span>
+                <div style={{ color: "var(--dark)" }}>
+                  {selectedLog.event === "Sent" && <span>Date and time of sent: <br/><strong>{selectedLog.timestamp}</strong></span>}
+                  {selectedLog.event === "Received" && <span>Date and time request received: <br/><strong>{selectedLog.timestamp}</strong></span>}
+                  {selectedLog.event === "Viewed" && <span>Date and time user viewed it: <br/><strong>{selectedLog.timestamp}</strong></span>}
+                  {selectedLog.event === "Failed" && <span>Attempt date and time: <br/><strong>{selectedLog.timestamp}</strong></span>}
+                </div>
+              </div>
+
+              {selectedLog.templateId && (
+                <div style={{ display: "grid", gridTemplateColumns: "100px 1fr", gap: "1rem", alignItems: "flex-start" }}>
+                  <span style={{ fontWeight: "600", color: "var(--text-muted)", fontSize: "0.9rem" }}>Template ID:</span>
+                  <div style={{ color: "var(--dark)", fontWeight: "500" }}>
+                    {selectedLog.templateId}
+                  </div>
+                </div>
+              )}
+
+              {selectedLog.event === "Failed" && selectedLog.error && (
+                <div style={{ display: "grid", gridTemplateColumns: "100px 1fr", gap: "1rem", alignItems: "flex-start" }}>
+                  <span style={{ fontWeight: "600", color: "var(--text-muted)", fontSize: "0.9rem" }}>Error Details:</span>
+                  <div style={{ color: "var(--danger)", backgroundColor: "#fee2e2", padding: "0.75rem", borderRadius: "6px", fontSize: "0.9rem", border: "1px solid #fecaca" }}>
+                    {selectedLog.error}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div style={{ padding: "1rem 1.5rem", borderTop: "1px solid var(--border-color)", backgroundColor: "#f8fafc", textAlign: "right" }}>
+              <button className="btn btn-primary" onClick={() => setSelectedLog(null)}>Close</button>
             </div>
           </div>
         </div>
