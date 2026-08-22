@@ -27,6 +27,54 @@ const EMAIL_PROVIDERS = {
   SES: ["donotreply@mantra.care", "donotreply@mantracare.org", "provider@mantra.care", "provider@mantracare.org"]
 };
 
+const NOTIFICATION_TEMPLATES = {
+  "Signup": { 
+    subject: "Welcome to MantraCare!", 
+    email: "<h1>Welcome to MantraCare!</h1><p>Hi {{client_name}},</p><p>We are thrilled to have you on board. Explore our app to get started.</p>",
+    text: "Welcome to MantraCare, {{client_name}}! We are thrilled to have you on board. Explore our app to get started."
+  },
+  "Meeting Scheduled": { 
+    subject: "Your Meeting is Scheduled", 
+    email: "<h1>Meeting Scheduled</h1><p>Hi {{client_name}},</p><p>Your meeting with {{provider_name}} is scheduled for {{session_date}} at {{session_time}}.</p>",
+    text: "Hi {{client_name}}, your meeting with {{provider_name}} is scheduled for {{session_date}} at {{session_time}}."
+  },
+  "Meeting Link (email with link)": { 
+    subject: "Your Meeting Link", 
+    email: "<h1>Meeting Link</h1><p>Hi {{client_name}},</p><p>Here is your meeting link: <a href='{{session_link}}'>Join Session</a></p>",
+    text: "Hi {{client_name}}, here is your meeting link: {{session_link}}"
+  },
+  "Profile Edited": { 
+    subject: "Profile Updated", 
+    email: "<h1>Profile Updated</h1><p>Hi {{client_name}},</p><p>Your profile has been successfully updated.</p>",
+    text: "Hi {{client_name}}, your profile has been successfully updated."
+  },
+  "Password Reset": { 
+    subject: "Password Reset Request", 
+    email: "<h1>Password Reset</h1><p>Hi {{client_name}},</p><p>You requested a password reset. Please click the link to reset your password.</p>",
+    text: "Hi {{client_name}}, you requested a password reset. Please click the link sent to your email."
+  },
+  "Invite Code Added": { 
+    subject: "Invite Code Applied", 
+    email: "<h1>Invite Code Applied</h1><p>Hi {{client_name}},</p><p>Your invite code has been successfully added to your account.</p>",
+    text: "Hi {{client_name}}, your invite code has been successfully added to your account."
+  },
+  "Dependent Added": { 
+    subject: "Dependent Added", 
+    email: "<h1>Dependent Added</h1><p>Hi {{client_name}},</p><p>A new dependent has been added to your plan.</p>",
+    text: "Hi {{client_name}}, a new dependent has been added to your plan."
+  },
+  "Dependent Joined the Plan": { 
+    subject: "Dependent Joined", 
+    email: "<h1>Dependent Joined</h1><p>Hi {{client_name}},</p><p>Your dependent has successfully joined the plan.</p>",
+    text: "Hi {{client_name}}, your dependent has successfully joined the plan."
+  },
+  "Session Completed - Share Feedback": { 
+    subject: "How was your session?", 
+    email: "<h1>Session Completed</h1><p>Hi {{client_name}},</p><p>We hope you had a great session with {{provider_name}}. Please share your feedback.</p>",
+    text: "Hi {{client_name}}, we hope you had a great session with {{provider_name}}. Please share your feedback in the app."
+  }
+};
+
 const NOTIFICATION_VARIABLES = [
   { label: "Client Name", value: "{{client_name}}" },
   { label: "Order ID", value: "{{order_id}}" },
@@ -286,6 +334,21 @@ function AddNotificationContent() {
         </div>
       </div>
 
+      {!isBulk && (
+        <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem", backgroundColor: "white" }}>
+          <label style={{ fontSize: "1.1rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Trigger Event:</label>
+          <select className="form-control" name="trigger" value={formData.trigger} onChange={handleChange} style={{ maxWidth: "400px", margin: 0 }}>
+            {triggers && triggers.length > 0 ? (
+              triggers.map(t => (
+                <option key={t.id} value={t.name}>{t.name}</option>
+              ))
+            ) : (
+              <option value="">No triggers available</option>
+            )}
+          </select>
+        </div>
+      )}
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "1.5rem" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
@@ -332,39 +395,7 @@ function AddNotificationContent() {
             </div>
           </div>
 
-          {/* Trigger */}
-          {!isBulk && (
-            <div className="card" style={{ padding: "0", overflow: "visible" }}>
-              <div 
-                style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", backgroundColor: "white", borderBottom: isTriggerOpen ? "1px solid var(--border-color)" : "none" }}
-                onClick={() => setIsTriggerOpen(!isTriggerOpen)}
-              >
-                <h2 style={{ fontSize: "1.1rem", margin: 0, color: "var(--dark)", fontWeight: "600" }}>Trigger</h2>
-                <button style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex" }}>
-                  {isTriggerOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                </button>
-              </div>
 
-              <div className={`accordion-content ${isTriggerOpen ? "open" : ""}`}>
-                <div className="accordion-content-inner">
-                  <div style={{ padding: "1.5rem" }}>
-                  <div className="input-group" style={{ marginBottom: 0 }}>
-                    <label>Trigger Event</label>
-                    <select className="form-control" name="trigger" value={formData.trigger} onChange={handleChange} style={{ maxWidth: "400px" }}>
-                      {triggers && triggers.length > 0 ? (
-                        triggers.map(t => (
-                          <option key={t.id} value={t.name}>{t.name}</option>
-                        ))
-                      ) : (
-                        <option value="">No triggers available</option>
-                      )}
-                    </select>
-                  </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Content Setup */}
           <div className="card" style={{ padding: "0", overflow: "visible" }}>
@@ -381,6 +412,31 @@ function AddNotificationContent() {
             <div className={`accordion-content ${isContentSetupOpen ? "open" : ""}`}>
               <div className="accordion-content-inner">
                 <div style={{ padding: "1.5rem" }}>
+                <div className="input-group">
+                  <label>Template</label>
+                  <select 
+                    className="form-control" 
+                    onChange={(e) => {
+                      const templateName = e.target.value;
+                      if (templateName && NOTIFICATION_TEMPLATES[templateName]) {
+                        setFormData(prev => ({
+                          ...prev,
+                          emailSubject: NOTIFICATION_TEMPLATES[templateName].subject,
+                          emailContent: NOTIFICATION_TEMPLATES[templateName].email,
+                          smsContent: NOTIFICATION_TEMPLATES[templateName].text,
+                          appTextContent: NOTIFICATION_TEMPLATES[templateName].text
+                        }));
+                      }
+                    }} 
+                    style={{ maxWidth: "400px" }}
+                  >
+                    <option value="">Select a predefined template...</option>
+                    {Object.keys(NOTIFICATION_TEMPLATES).map(tmpl => (
+                      <option key={tmpl} value={tmpl}>{tmpl}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="input-group">
                   <label>Type</label>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
