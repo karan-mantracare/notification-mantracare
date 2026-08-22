@@ -65,7 +65,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             style={{ width: "100%", background: "none", border: "none", cursor: "pointer", justifyContent: "space-between" }}
           >
             <div className="nav-item-content">
-              <item.icon size={20} />
+              <item.icon className="nav-icon" size={20} />
               <span>{item.label}</span>
             </div>
             {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -84,7 +84,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                     onClick={() => setIsOpen(false)}
                   >
                     <div className="nav-item-content">
-                      <child.icon size={16} />
+                      <child.icon className="nav-icon" size={16} />
                       <span>{child.label}</span>
                     </div>
                   </Link>
@@ -104,7 +104,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         onClick={() => setIsOpen(false)}
       >
         <div className="nav-item-content">
-          <item.icon size={isSub ? 16 : 20} />
+          <item.icon className="nav-icon" size={isSub ? 16 : 20} />
           <span>{item.label}</span>
         </div>
       </Link>

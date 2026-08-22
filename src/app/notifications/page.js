@@ -7,7 +7,7 @@ import { Plus, Edit, Trash2, Eye, X, BellOff, Activity, LayoutTemplate } from "l
 import toast from "react-hot-toast";
 
 export default function NotificationsPage() {
-  const { notifications, logs, deleteNotification } = useNotifications();
+  const { notifications, logs, deleteNotification, selectedCompany } = useNotifications();
   const [activeTab, setActiveTab] = useState("notifications"); // "notifications", "log"
 
   useEffect(() => {
@@ -97,7 +97,10 @@ export default function NotificationsPage() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)" }}>Notifications</h1>
+        <div>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Notifications</h1>
+          <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>Showing notifications for {selectedCompany}</p>
+        </div>
 
         {activeTab === "notifications" && (
           <Link href="/notifications/add" className="btn btn-primary">

@@ -1,225 +1,233 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const NotificationContext = createContext();
 
-const initialNotifications = [
-  {
-    id: 10045,
-    userType: "Client",
-    name: "Welcome Series 1",
-    description: "Welcome Series 1",
-    type: "App",
-    appNotificationType: "App Screen",
-    actionScreen: "Home",
-    action: "Open App> Home",
-    emailProvider: "Sendgrid",
-    senderEmail: "donotreply@mantra.care",
-    emailSubject: "",
-    emailContent: "",
-    smsContent: "",
-    service: "Therapy",
-    orderPurchased: "Yes",
-    trigger: "signup success",
-    displayTrigger: "Instantly on signup success [Therapy]",
-    timing: "Instantly",
-    eventType: "One-time",
-    scheduleDate: "",
-    scheduleTime: "",
-    scheduleTimezone: "IST (GMT+5:30)",
-    recurringFrequency: "Weekly",
-    recurringDays: [],
-    recurringTime: "",
-    recurringTimezone: "IST (GMT+5:30)",
-    monthlySchedules: [{ id: 1, date: "", time: "", timezone: "IST (GMT+5:30)" }],
-    visibleToAll: true,
-    selectedServices: ["Therapy"],
-    selectedCorporates: [],
-    appTextContent: "Welcome to Mantra Care!",
-    campaignType: "timebased",
-    category: "Client",
+const MOCK_DATA = {
+  MantraCare: {
+    templates: {
+      "Signup": { subject: "Welcome to MantraCare!", email: "<h1>Welcome to MantraCare!</h1><p>Hi {{client_name}},</p><p>We are thrilled to have you on board. Explore our app to get started.</p>", text: "Welcome to MantraCare, {{client_name}}! We are thrilled to have you on board. Explore our app to get started." },
+      "Meeting Scheduled": { subject: "Your Meeting is Scheduled", email: "<h1>Meeting Scheduled</h1><p>Hi {{client_name}},</p><p>Your meeting with {{provider_name}} is scheduled for {{session_date}} at {{session_time}}.</p>", text: "Hi {{client_name}}, your meeting with {{provider_name}} is scheduled for {{session_date}} at {{session_time}}." },
+      "Profile Edited": { subject: "Profile Updated", email: "<h1>Profile Updated</h1><p>Hi {{client_name}},</p><p>Your profile has been successfully updated.</p>", text: "Hi {{client_name}}, your profile has been successfully updated." },
+    },
+    triggers: [
+      { id: 1, name: "thankyou page", eventType: "Page View", filterField: "Page URL", filterCondition: "contains thanks", tags: 1, lastEdited: "3 years ago" },
+      { id: 2, name: "order completed", eventType: "Purchase", filterField: "Order Status", filterCondition: "equals complete", tags: 2, lastEdited: "1 year ago" },
+      { id: 3, name: "signup success", eventType: "Sign Up", filterField: "Account Source", filterCondition: "any", tags: 0, lastEdited: "2 months ago" }
+    ],
+    notifications: [
+      { id: 10045, userType: "Client", name: "Welcome Series 1", description: "Welcome Series 1", type: "App", appNotificationType: "App Screen", actionScreen: "Home", action: "Open App> Home", emailProvider: "Sendgrid", senderEmail: "donotreply@mantra.care", emailSubject: "", emailContent: "", smsContent: "", service: "Therapy", orderPurchased: "Yes", trigger: "signup success", displayTrigger: "Instantly on signup success [Therapy]", timing: "Instantly", eventType: "One-time", scheduleDate: "", scheduleTime: "", scheduleTimezone: "IST (GMT+5:30)", recurringFrequency: "Weekly", recurringDays: [], recurringTime: "", recurringTimezone: "IST (GMT+5:30)", monthlySchedules: [{ id: 1, date: "", time: "", timezone: "IST (GMT+5:30)" }], visibleToAll: true, selectedServices: ["Therapy"], selectedCorporates: [], appTextContent: "Welcome to Mantra Care!", campaignType: "timebased", category: "Client" },
+      { id: 10046, userType: "Client", name: "Follow up after 2 days", description: "Follow up after 2 days", type: "Email", appNotificationType: "App Screen", actionScreen: "Home", action: "Email Notification", emailProvider: "Sendgrid", senderEmail: "donotreply@mantra.care", emailSubject: "Checking in on your progress!", emailContent: "<p>Hi {{client_name}}, it's been 2 days. How are you doing?</p>", smsContent: "", service: "Therapy", orderPurchased: "Yes", trigger: "signup success", displayTrigger: "2 Days post signup success [Therapy]", timing: "2 Days", eventType: "One-time", scheduleDate: "", scheduleTime: "", scheduleTimezone: "IST (GMT+5:30)", recurringFrequency: "Weekly", recurringDays: [], recurringTime: "", recurringTimezone: "IST (GMT+5:30)", monthlySchedules: [{ id: 1, date: "", time: "", timezone: "IST (GMT+5:30)" }], visibleToAll: true, selectedServices: ["Therapy"], selectedCorporates: [], appTextContent: "", campaignType: "timebased", category: "Client" },
+    ],
+    logs: [
+      { id: 10045, campaignType: "timebased", sentCount: 1542, deliveries: [{ userId: "USR-001", timestamp: "2026-08-18 10:30:00" }, { userId: "USR-089", timestamp: "2026-08-18 11:15:00" }] },
+      { id: 10046, campaignType: "bulk", sentCount: 8900, deliveries: [{ userId: "USR-402", timestamp: "2026-08-17 09:00:00" }, { userId: "USR-511", timestamp: "2026-08-17 09:00:05" }] }
+    ],
+    emailSettings: {
+      providers: [{ id: 1, connectionName: "MantraCare Sendgrid", provider: "Sendgrid", details: { authToken: "sg.mantracare" } }],
+      emailIds: [
+        { id: 1, email: "clients@mantra.care", providerId: 1, priority: "High" },
+        { id: 2, email: "provider@mantra.care", providerId: 1, priority: "Normal" }
+      ]
+    },
+    smsSettings: {
+      providers: [{ id: 1, connectionName: "Mantra Twilio", provider: "Twilio", details: { accountSid: "AC...", authToken: "..." } }],
+      numbers: [
+        { id: 1, number: "+91 9999999999", providerId: 1, priority: "High" }
+      ]
+    }
   },
-  {
-    id: 10046,
-    userType: "Client",
-    name: "Follow up after 2 days",
-    description: "Follow up after 2 days",
-    type: "Email",
-    appNotificationType: "App Screen",
-    actionScreen: "Home",
-    action: "Email Notification",
-    emailProvider: "Sendgrid",
-    senderEmail: "donotreply@mantra.care",
-    emailSubject: "Checking in on your progress!",
-    emailContent: "<p>Hi {{client_name}}, it's been 2 days. How are you doing?</p>",
-    smsContent: "",
-    service: "Therapy",
-    orderPurchased: "Yes",
-    trigger: "signup success",
-    displayTrigger: "2 Days post signup success [Therapy]",
-    timing: "2 Days",
-    eventType: "One-time",
-    scheduleDate: "",
-    scheduleTime: "",
-    scheduleTimezone: "IST (GMT+5:30)",
-    recurringFrequency: "Weekly",
-    recurringDays: [],
-    recurringTime: "",
-    recurringTimezone: "IST (GMT+5:30)",
-    monthlySchedules: [{ id: 1, date: "", time: "", timezone: "IST (GMT+5:30)" }],
-    visibleToAll: true,
-    selectedServices: ["Therapy"],
-    selectedCorporates: [],
-    appTextContent: "",
-    campaignType: "timebased",
-    category: "Client",
+  MantraAssist: {
+    templates: {
+      "User Signup": { subject: "Welcome to MantraAssist!", email: "<h1>Welcome!</h1><p>Hi {{client_name}},</p><p>Thanks for signing up for our AI Receptionist service.</p>", text: "Hi {{client_name}}, welcome to MantraAssist! Your AI Receptionist is ready." },
+      "Number Added": { subject: "Virtual Number Configured", email: "<h1>Number Added</h1><p>Your new virtual number {{number}} is now active.</p>", text: "Your new virtual number {{number}} is now active on MantraAssist." },
+      "Credits Topped Up": { subject: "Credits Added Successfully", email: "<h1>Payment Received</h1><p>Your account has been credited with {{credits}}.</p>", text: "Success! {{credits}} credits have been added to your MantraAssist account." },
+      "Low Credits Reminder": { subject: "Action Required: Low Credits", email: "<h1>Low Credits Warning</h1><p>You have less than {{credits}} credits remaining. Top up to avoid service interruption.</p>", text: "Warning: Your MantraAssist credits are running low. Please top up soon." },
+      "New Team Added": { subject: "Team Member Added", email: "<h1>Team Updated</h1><p>{{member_name}} has been added to your workspace.</p>", text: "{{member_name}} has been added to your workspace." },
+    },
+    triggers: [
+      { id: 4, name: "account created", eventType: "Sign Up", filterField: "Plan", filterCondition: "equals Pro", tags: 1, lastEdited: "1 week ago" },
+      { id: 5, name: "low credits", eventType: "Billing", filterField: "Credits", filterCondition: "less than 100", tags: 2, lastEdited: "3 days ago" },
+      { id: 6, name: "number added", eventType: "Configuration", filterField: "Status", filterCondition: "equals Active", tags: 0, lastEdited: "2 months ago" }
+    ],
+    notifications: [
+      { id: 2001, userType: "Client", name: "Low Credits Warning", description: "Triggered when credits < 100", type: "Email", appNotificationType: "", actionScreen: "", action: "Email Notification", emailProvider: "Sendgrid", senderEmail: "support@mantraassist.com", emailSubject: "Low Credits", emailContent: "<p>Please recharge your account.</p>", smsContent: "", service: "AI Receptionist", orderPurchased: "Yes", trigger: "low credits", displayTrigger: "Instantly on low credits", timing: "Instantly", eventType: "One-time", scheduleDate: "", scheduleTime: "", scheduleTimezone: "IST (GMT+5:30)", recurringFrequency: "", recurringDays: [], recurringTime: "", recurringTimezone: "", monthlySchedules: [], visibleToAll: true, selectedServices: [], selectedCorporates: [], appTextContent: "", campaignType: "automated", category: "Billing" },
+    ],
+    logs: [
+      { id: 2001, campaignType: "automated", sentCount: 345, deliveries: [{ userId: "MA-112", timestamp: "2026-08-20 14:20:00" }] }
+    ],
+    emailSettings: {
+      providers: [{ id: 1, connectionName: "MantraAssist SES", provider: "SES", details: { clientId: "AKIAIOSFODNN7EXAMPLE", secretKey: "wJalrXU" } }],
+      emailIds: [
+        { id: 1, email: "contact@mantraassist.com", providerId: 1, priority: "High" }
+      ]
+    },
+    smsSettings: {
+      providers: [{ id: 1, connectionName: "MSG91 Main", provider: "MSG91", details: { authToken: "..." } }],
+      numbers: [
+        { id: 1, number: "+91 8888888888", providerId: 1, priority: "High" }
+      ]
+    }
   },
-  {
-    id: 10048,
-    userType: "Client",
-    name: "End of year sale",
-    description: "End of year sale",
-    type: "SMS",
-    appNotificationType: "App Screen",
-    actionScreen: "Home",
-    action: "SMS Notification",
-    emailProvider: "Sendgrid",
-    senderEmail: "donotreply@mantra.care",
-    emailSubject: "",
-    emailContent: "",
-    smsContent: "Get 50% off all sessions this week! Use code YEAR50.",
-    service: "All",
-    orderPurchased: "Yes",
-    trigger: "thankyou page", // unused for bulk
-    displayTrigger: "Bulk [All Corporates] - One-time: 2026-12-01 at 10:00 IST (GMT+5:30)",
-    timing: "Instantly",
-    eventType: "One-time",
-    scheduleDate: "2026-12-01",
-    scheduleTime: "10:00",
-    scheduleTimezone: "IST (GMT+5:30)",
-    recurringFrequency: "Weekly",
-    recurringDays: [],
-    recurringTime: "",
-    recurringTimezone: "IST (GMT+5:30)",
-    monthlySchedules: [{ id: 1, date: "", time: "", timezone: "IST (GMT+5:30)" }],
-    visibleToAll: true,
-    selectedServices: [],
-    selectedCorporates: [],
-    appTextContent: "",
-    campaignType: "bulk",
-    category: "Client",
+  EyeMantra: {
+    templates: {
+      "Appointment Booked": { subject: "Appointment Confirmed", email: "<h1>Booking Confirmed</h1><p>Hi {{client_name}}, your appointment at EyeMantra Hospital PaschimVihar is confirmed.</p>", text: "Hi {{client_name}}, your appointment at EyeMantra Hospital PaschimVihar is confirmed." },
+      "Surgery Payment Received": { subject: "Payment Receipt", email: "<h1>Payment Successful</h1><p>We have received your payment for the eye surgery.</p>", text: "We have received your payment for the eye surgery at EyeMantra." },
+      "Arrival at Hospital": { subject: "Welcome to EyeMantra", email: "<h1>Welcome</h1><p>Please proceed to the reception for your checkup.</p>", text: "Welcome to EyeMantra! Please proceed to the reception." },
+      "Surgery Completed": { subject: "Post-Surgery Instructions", email: "<h1>Surgery Successful</h1><p>Here are your post-surgery care instructions...</p>", text: "Your surgery was successful! Please check your email for care instructions." },
+      "Post-Surgery Checkup": { subject: "Checkup Reminder", email: "<h1>Reminder</h1><p>Your post-surgery checkup is scheduled for tomorrow.</p>", text: "Reminder: Your post-surgery checkup is scheduled for tomorrow at EyeMantra." },
+      "Feedback Request": { subject: "How was your experience?", email: "<h1>Feedback</h1><p>Please rate your surgery experience.</p>", text: "Please rate your experience at EyeMantra Hospital." },
+    },
+    triggers: [
+      { id: 7, name: "appointment booked", eventType: "Booking", filterField: "Location", filterCondition: "equals PaschimVihar", tags: 3, lastEdited: "5 hours ago" },
+      { id: 8, name: "surgery completed", eventType: "Medical", filterField: "Procedure", filterCondition: "any", tags: 1, lastEdited: "1 day ago" },
+      { id: 9, name: "payment received", eventType: "Billing", filterField: "Amount", filterCondition: "greater than 0", tags: 0, lastEdited: "1 month ago" }
+    ],
+    notifications: [
+      { id: 3001, userType: "Patient", name: "Pre-surgery instructions", description: "Sent 2 days before surgery", type: "SMS", appNotificationType: "", actionScreen: "", action: "SMS Notification", emailProvider: "", senderEmail: "", emailSubject: "", emailContent: "", smsContent: "Please remember to fast for 12 hours before your eye surgery.", service: "Cataract Surgery", orderPurchased: "Yes", trigger: "appointment booked", displayTrigger: "2 Days before surgery", timing: "Scheduled", eventType: "One-time", scheduleDate: "", scheduleTime: "", scheduleTimezone: "IST (GMT+5:30)", recurringFrequency: "", recurringDays: [], recurringTime: "", recurringTimezone: "", monthlySchedules: [], visibleToAll: true, selectedServices: [], selectedCorporates: [], appTextContent: "", campaignType: "automated", category: "Patient" },
+    ],
+    logs: [
+      { id: 3001, campaignType: "automated", sentCount: 12050, deliveries: [{ userId: "PT-998", timestamp: "2026-08-21 08:00:00" }] }
+    ],
+    emailSettings: {
+      providers: [{ id: 1, connectionName: "EyeMantra Brevo", provider: "Brevo", details: { apiKey: "xkeysib-eyemantra" } }],
+      emailIds: [
+        { id: 1, email: "appointment@eyemantra.in", providerId: 1, priority: "High" },
+        { id: 2, email: "clients@eyemantra.in", providerId: 1, priority: "Normal" }
+      ]
+    },
+    smsSettings: {
+      providers: [{ id: 1, connectionName: "BulkSMSGateway Default", provider: "BulkSMSGateway", details: { userName: "...", password: "..." } }],
+      numbers: [
+        { id: 1, number: "+91 7777777777", providerId: 1, priority: "High" }
+      ]
+    }
   }
-];
-
-const initialTriggers = [
-  {
-    id: 1,
-    name: "thankyou page",
-    eventType: "Page View",
-    filterField: "Page URL",
-    filterCondition: "contains thanks",
-    tags: 1,
-    lastEdited: "3 years ago"
-  },
-  {
-    id: 2,
-    name: "order completed",
-    eventType: "Purchase",
-    filterField: "Order Status",
-    filterCondition: "equals complete",
-    tags: 2,
-    lastEdited: "1 year ago"
-  },
-  {
-    id: 3,
-    name: "signup success",
-    eventType: "Sign Up",
-    filterField: "Account Source",
-    filterCondition: "any",
-    tags: 0,
-    lastEdited: "2 months ago"
-  }
-];
-
-const initialLogs = [
-  {
-    id: 10045,
-    campaignType: "timebased",
-    sentCount: 1542,
-    deliveries: [
-      { userId: "USR-001", timestamp: "2026-08-18 10:30:00" },
-      { userId: "USR-089", timestamp: "2026-08-18 11:15:00" }
-    ]
-  },
-  {
-    id: 10048,
-    campaignType: "bulk",
-    sentCount: 8900,
-    deliveries: [
-      { userId: "USR-402", timestamp: "2026-08-17 09:00:00" },
-      { userId: "USR-511", timestamp: "2026-08-17 09:00:05" }
-    ]
-  }
-];
+};
 
 export function NotificationProvider({ children }) {
-  const [notifications, setNotifications] = useState(initialNotifications);
-  const [logs, setLogs] = useState(initialLogs);
-  const [triggers, setTriggers] = useState(initialTriggers);
+  const [selectedCompany, setSelectedCompany] = useState("MantraCare");
+  
+  const [allData, setAllData] = useState(MOCK_DATA);
+
+  // Derived state for the active company
+  const activeData = allData[selectedCompany];
+  const templates = activeData.templates;
+  const triggers = activeData.triggers;
+  const notifications = activeData.notifications;
+  const logs = activeData.logs;
+  const emailSettings = activeData.emailSettings;
+  const smsSettings = activeData.smsSettings;
 
   const addNotification = (newNotification) => {
-    setNotifications((prev) => {
-      const maxId = prev.length > 0 ? Math.max(...prev.map(n => n.id)) : 10044;
-      return [
+    setAllData(prev => {
+      const companyData = prev[selectedCompany];
+      const maxId = companyData.notifications.length > 0 ? Math.max(...companyData.notifications.map(n => n.id)) : 10000;
+      return {
         ...prev,
-        {
-          id: maxId + 1,
-          ...newNotification,
-        },
-      ];
+        [selectedCompany]: {
+          ...companyData,
+          notifications: [...companyData.notifications, { id: maxId + 1, ...newNotification }]
+        }
+      };
     });
   };
 
   const deleteNotification = (id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setAllData(prev => {
+      const companyData = prev[selectedCompany];
+      return {
+        ...prev,
+        [selectedCompany]: {
+          ...companyData,
+          notifications: companyData.notifications.filter(n => n.id !== id)
+        }
+      };
+    });
   };
 
   const updateNotification = (id, updatedNotification) => {
-    setNotifications((prev) => 
-      prev.map(n => n.id === id ? { ...n, ...updatedNotification } : n)
-    );
+    setAllData(prev => {
+      const companyData = prev[selectedCompany];
+      return {
+        ...prev,
+        [selectedCompany]: {
+          ...companyData,
+          notifications: companyData.notifications.map(n => n.id === id ? { ...n, ...updatedNotification } : n)
+        }
+      };
+    });
   };
 
   const addTrigger = (newTrigger) => {
-    setTriggers((prev) => {
-      const maxId = prev.length > 0 ? Math.max(...prev.map(t => t.id)) : 0;
-      return [
+    setAllData(prev => {
+      const companyData = prev[selectedCompany];
+      const maxId = companyData.triggers.length > 0 ? Math.max(...companyData.triggers.map(t => t.id)) : 0;
+      return {
         ...prev,
-        {
-          id: maxId + 1,
-          ...newTrigger,
-        },
-      ];
+        [selectedCompany]: {
+          ...companyData,
+          triggers: [...companyData.triggers, { id: maxId + 1, ...newTrigger }]
+        }
+      };
     });
   };
 
   const deleteTrigger = (id) => {
-    setTriggers((prev) => prev.filter((t) => t.id !== id));
+    setAllData(prev => {
+      const companyData = prev[selectedCompany];
+      return {
+        ...prev,
+        [selectedCompany]: {
+          ...companyData,
+          triggers: companyData.triggers.filter(t => t.id !== id)
+        }
+      };
+    });
   };
 
   const updateTrigger = (id, updatedTrigger) => {
-    setTriggers((prev) => 
-      prev.map(t => t.id === id ? { ...t, ...updatedTrigger } : t)
-    );
+    setAllData(prev => {
+      const companyData = prev[selectedCompany];
+      return {
+        ...prev,
+        [selectedCompany]: {
+          ...companyData,
+          triggers: companyData.triggers.map(t => t.id === id ? { ...t, ...updatedTrigger } : t)
+        }
+      };
+    });
+  };
+
+  const updateEmailSettings = (newEmailSettings) => {
+    setAllData(prev => ({
+      ...prev,
+      [selectedCompany]: {
+        ...prev[selectedCompany],
+        emailSettings: newEmailSettings
+      }
+    }));
+  };
+
+  const updateSmsSettings = (newSmsSettings) => {
+    setAllData(prev => ({
+      ...prev,
+      [selectedCompany]: {
+        ...prev[selectedCompany],
+        smsSettings: newSmsSettings
+      }
+    }));
   };
 
   return (
     <NotificationContext.Provider
       value={{ 
-        notifications, logs, triggers, 
+        selectedCompany, setSelectedCompany,
+        templates, notifications, logs, triggers, emailSettings, smsSettings,
         addNotification, deleteNotification, updateNotification,
-        addTrigger, deleteTrigger, updateTrigger
+        addTrigger, deleteTrigger, updateTrigger,
+        updateEmailSettings, updateSmsSettings
       }}
     >
       {children}

@@ -4,9 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import { useNotifications } from "@/context/NotificationContext";
 import { Plus, LayoutTemplate, X } from "lucide-react";
 import toast from "react-hot-toast";
+import CustomSelect from "@/components/CustomSelect";
 
 export default function TriggerPage() {
-  const { triggers, addTrigger } = useNotifications();
+  const { triggers, addTrigger, selectedCompany } = useNotifications();
   const [isCreatingTrigger, setIsCreatingTrigger] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -38,7 +39,10 @@ export default function TriggerPage() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Triggers</h1>
+        <div>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Triggers</h1>
+          <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>Showing triggers for {selectedCompany}</p>
+        </div>
         <button className="btn btn-primary" onClick={() => setIsCreatingTrigger(true)}>
           <span>Add New Trigger</span> <Plus size={18} />
         </button>
@@ -240,13 +244,18 @@ export default function TriggerPage() {
                       {triggerScope === "some" && (
                         <div style={{ border: "1px solid var(--border-color)", borderRadius: "6px", padding: "1.5rem", backgroundColor: "white" }}>
                           <div style={{ display: "flex", gap: "1rem", alignItems: "center", position: "relative" }}>
-                            <select style={{ padding: "0.5rem", border: "1px solid var(--border-color)", borderRadius: "4px", backgroundColor: "#f8fafc", color: "var(--dark)", fontSize: "0.9rem", flex: 1 }}>
-                              <option>Platform Name</option>
-                            </select>
-                            <select style={{ padding: "0.5rem", border: "1px solid var(--border-color)", borderRadius: "4px", backgroundColor: "#f8fafc", color: "var(--dark)", fontSize: "0.9rem", flex: 1 }}>
-                              <option>equals</option>
-                              <option>contains</option>
-                            </select>
+                            <CustomSelect
+                              value="Platform Name"
+                              onChange={() => {}}
+                              options={["Platform Name"]}
+                              style={{ flex: 1 }}
+                            />
+                            <CustomSelect
+                              value="equals"
+                              onChange={() => {}}
+                              options={["equals", "contains"]}
+                              style={{ flex: 1 }}
+                            />
                             
                             <div style={{ flex: 1, position: "relative" }} ref={dropdownRef}>
                               <div 

@@ -4,10 +4,11 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useNotifications } from "@/context/NotificationContext";
 import dynamic from "next/dynamic";
-import { ArrowLeft, Save, Smartphone, Mail, MessageSquare, Info, Monitor, X, ChevronDown, ChevronUp, ChevronRight } from "lucide-react";
+import { ArrowLeft, Save, Smartphone, Mail, MessageSquare, Info, Monitor, X, ChevronDown, ChevronUp, ChevronRight, Variable } from "lucide-react";
 import Link from "next/link";
 import "react-quill-new/dist/quill.snow.css";
 import toast from "react-hot-toast";
+import CustomSelect from "@/components/CustomSelect";
 
 // Dynamically import ReactQuill to prevent SSR issues
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
@@ -27,53 +28,7 @@ const EMAIL_PROVIDERS = {
   SES: ["donotreply@mantra.care", "donotreply@mantracare.org", "provider@mantra.care", "provider@mantracare.org"]
 };
 
-const NOTIFICATION_TEMPLATES = {
-  "Signup": { 
-    subject: "Welcome to MantraCare!", 
-    email: "<h1>Welcome to MantraCare!</h1><p>Hi {{client_name}},</p><p>We are thrilled to have you on board. Explore our app to get started.</p>",
-    text: "Welcome to MantraCare, {{client_name}}! We are thrilled to have you on board. Explore our app to get started."
-  },
-  "Meeting Scheduled": { 
-    subject: "Your Meeting is Scheduled", 
-    email: "<h1>Meeting Scheduled</h1><p>Hi {{client_name}},</p><p>Your meeting with {{provider_name}} is scheduled for {{session_date}} at {{session_time}}.</p>",
-    text: "Hi {{client_name}}, your meeting with {{provider_name}} is scheduled for {{session_date}} at {{session_time}}."
-  },
-  "Meeting Link (email with link)": { 
-    subject: "Your Meeting Link", 
-    email: "<h1>Meeting Link</h1><p>Hi {{client_name}},</p><p>Here is your meeting link: <a href='{{session_link}}'>Join Session</a></p>",
-    text: "Hi {{client_name}}, here is your meeting link: {{session_link}}"
-  },
-  "Profile Edited": { 
-    subject: "Profile Updated", 
-    email: "<h1>Profile Updated</h1><p>Hi {{client_name}},</p><p>Your profile has been successfully updated.</p>",
-    text: "Hi {{client_name}}, your profile has been successfully updated."
-  },
-  "Password Reset": { 
-    subject: "Password Reset Request", 
-    email: "<h1>Password Reset</h1><p>Hi {{client_name}},</p><p>You requested a password reset. Please click the link to reset your password.</p>",
-    text: "Hi {{client_name}}, you requested a password reset. Please click the link sent to your email."
-  },
-  "Invite Code Added": { 
-    subject: "Invite Code Applied", 
-    email: "<h1>Invite Code Applied</h1><p>Hi {{client_name}},</p><p>Your invite code has been successfully added to your account.</p>",
-    text: "Hi {{client_name}}, your invite code has been successfully added to your account."
-  },
-  "Dependent Added": { 
-    subject: "Dependent Added", 
-    email: "<h1>Dependent Added</h1><p>Hi {{client_name}},</p><p>A new dependent has been added to your plan.</p>",
-    text: "Hi {{client_name}}, a new dependent has been added to your plan."
-  },
-  "Dependent Joined the Plan": { 
-    subject: "Dependent Joined", 
-    email: "<h1>Dependent Joined</h1><p>Hi {{client_name}},</p><p>Your dependent has successfully joined the plan.</p>",
-    text: "Hi {{client_name}}, your dependent has successfully joined the plan."
-  },
-  "Session Completed - Share Feedback": { 
-    subject: "How was your session?", 
-    email: "<h1>Session Completed</h1><p>Hi {{client_name}},</p><p>We hope you had a great session with {{provider_name}}. Please share your feedback.</p>",
-    text: "Hi {{client_name}}, we hope you had a great session with {{provider_name}}. Please share your feedback in the app."
-  }
-};
+// Removed hardcoded NOTIFICATION_TEMPLATES
 
 const NOTIFICATION_VARIABLES = [
   { label: "Client Name", value: "{{client_name}}" },
@@ -139,7 +94,7 @@ function AddNotificationContent() {
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");
   const isBulk = searchParams.get("mode") === "bulk";
-  const { notifications, triggers, addNotification, updateNotification } = useNotifications();
+  const { notifications, triggers, addNotification, updateNotification, templates } = useNotifications();
 
   const [formData, setFormData] = useState({
     userType: "Client",
@@ -337,15 +292,14 @@ function AddNotificationContent() {
       {!isBulk && (
         <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem", backgroundColor: "white" }}>
           <label style={{ fontSize: "1.1rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Trigger Event:</label>
-          <select className="form-control" name="trigger" value={formData.trigger} onChange={handleChange} style={{ maxWidth: "400px", margin: 0 }}>
-            {triggers && triggers.length > 0 ? (
-              triggers.map(t => (
-                <option key={t.id} value={t.name}>{t.name}</option>
-              ))
-            ) : (
-              <option value="">No triggers available</option>
-            )}
-          </select>
+          <CustomSelect
+            value={formData.trigger}
+            onChange={val => setFormData({ ...formData, trigger: val })}
+            options={triggers && triggers.length > 0 
+              ? triggers.map(t => ({ value: t.name, label: t.name }))
+              : [{ value: "", label: "No triggers available" }]}
+            style={{ width: "400px", margin: 0 }}
+          />
         </div>
       )}
 
@@ -414,27 +368,24 @@ function AddNotificationContent() {
                 <div style={{ padding: "1.5rem" }}>
                 <div className="input-group">
                   <label>Template</label>
-                  <select 
-                    className="form-control" 
-                    onChange={(e) => {
-                      const templateName = e.target.value;
-                      if (templateName && NOTIFICATION_TEMPLATES[templateName]) {
+                  <CustomSelect
+                    value={formData.templateName || ""}
+                    onChange={(val) => {
+                      if (val && templates[val]) {
                         setFormData(prev => ({
                           ...prev,
-                          emailSubject: NOTIFICATION_TEMPLATES[templateName].subject,
-                          emailContent: NOTIFICATION_TEMPLATES[templateName].email,
-                          smsContent: NOTIFICATION_TEMPLATES[templateName].text,
-                          appTextContent: NOTIFICATION_TEMPLATES[templateName].text
+                          templateName: val,
+                          emailSubject: templates[val].subject || "",
+                          emailContent: templates[val].email || "",
+                          smsContent: templates[val].text || "",
+                          appTextContent: templates[val].text || ""
                         }));
                       }
-                    }} 
-                    style={{ maxWidth: "400px" }}
-                  >
-                    <option value="">Select a predefined template...</option>
-                    {Object.keys(NOTIFICATION_TEMPLATES).map(tmpl => (
-                      <option key={tmpl} value={tmpl}>{tmpl}</option>
-                    ))}
-                  </select>
+                    }}
+                    placeholder="Select a predefined template..."
+                    options={Object.keys(templates).map(t => ({ value: t, label: t }))}
+                    style={{ width: "400px" }}
+                  />
                 </div>
 
                 <div className="input-group">
@@ -487,9 +438,12 @@ function AddNotificationContent() {
                 {formData.appNotificationType === "App Screen" && (
                   <div className="input-group">
                     <label>Action (Screen)</label>
-                    <select className="form-control" name="actionScreen" value={formData.actionScreen} onChange={handleChange} style={{ maxWidth: "400px" }}>
-                      {APP_SCREENS.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
+                    <CustomSelect
+                      value={formData.actionScreen}
+                      onChange={val => setFormData({ ...formData, actionScreen: val })}
+                      options={APP_SCREENS.map(s => ({ value: s, label: s }))}
+                      style={{ width: "400px" }}
+                    />
                   </div>
                 )}
 
@@ -521,11 +475,12 @@ function AddNotificationContent() {
               <div style={{ marginTop: "1rem" }}>
                 <div className="input-group">
                   <label>Sender Email</label>
-                  <select className="form-control" name="senderEmail" value={formData.senderEmail} onChange={handleChange} style={{ maxWidth: "400px" }}>
-                    {EMAIL_PROVIDERS[formData.emailProvider].map(email => (
-                      <option key={email} value={email}>{email}</option>
-                    ))}
-                  </select>
+                  <CustomSelect
+                    value={formData.senderEmail}
+                    onChange={val => setFormData({ ...formData, senderEmail: val })}
+                    options={EMAIL_PROVIDERS[formData.emailProvider] ? EMAIL_PROVIDERS[formData.emailProvider].map(e => ({ value: e, label: e })) : []}
+                    style={{ width: "400px" }}
+                  />
                 </div>
 
                 <div className="input-group">
@@ -626,14 +581,12 @@ function AddNotificationContent() {
                 {!isBulk && (
                   <div className="input-group" style={{ marginBottom: 0 }}>
                     <label style={{ display: "block", fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase", marginBottom: "0.5rem" }}>Send Timing</label>
-                    <select className="form-control" name="timing" value={formData.timing} onChange={handleChange}>
-                      <option value="Instantly">Instantly</option>
-                      <option value="1 Day">1 Day</option>
-                      <option value="2 Days">2 Days</option>
-                      <option value="7 Days">7 Days</option>
-                      <option value="14 Days">14 Days</option>
-                      <option value="30 Days">30 Days</option>
-                    </select>
+                    <CustomSelect
+                      value={formData.timing}
+                      onChange={val => setFormData({ ...formData, timing: val })}
+                      options={["Instantly", "1 Day", "2 Days", "7 Days", "14 Days", "30 Days"]}
+                      style={{ width: "100%" }}
+                    />
                   </div>
                 )}
 
@@ -812,9 +765,12 @@ function AddNotificationContent() {
                     </div>
                     <div className="input-group" style={{ marginBottom: 0 }}>
                       <label style={{ fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Timezone</label>
-                      <select className="form-control" value={formData.scheduleTimezone} onChange={(e) => setFormData({ ...formData, scheduleTimezone: e.target.value })}>
-                        {TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
-                      </select>
+                      <CustomSelect
+                        value={formData.scheduleTimezone}
+                        onChange={val => setFormData({ ...formData, scheduleTimezone: val })}
+                        options={TIMEZONES.map(tz => ({ value: tz, label: tz }))}
+                        style={{ width: "100%" }}
+                      />
                     </div>
                   </div>
                 ) : (
@@ -827,11 +783,12 @@ function AddNotificationContent() {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
                       <div className="input-group" style={{ marginBottom: 0 }}>
                         <label style={{ fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Frequency</label>
-                        <select className="form-control" value={formData.recurringFrequency} onChange={(e) => setFormData({ ...formData, recurringFrequency: e.target.value })}>
-                          <option value="Daily">Daily</option>
-                          <option value="Weekly">Weekly</option>
-                          <option value="Monthly">Monthly</option>
-                        </select>
+                        <CustomSelect
+                          value={formData.recurringFrequency}
+                          onChange={val => setFormData({ ...formData, recurringFrequency: val })}
+                          options={["Daily", "Weekly", "Monthly"]}
+                          style={{ width: "100%" }}
+                        />
                       </div>
 
                       <div>
@@ -890,9 +847,12 @@ function AddNotificationContent() {
                         </div>
                         <div className="input-group" style={{ marginBottom: 0 }}>
                           <label style={{ fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Timezone</label>
-                          <select className="form-control" value={formData.recurringTimezone} onChange={(e) => setFormData({ ...formData, recurringTimezone: e.target.value })}>
-                            {TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
-                          </select>
+                          <CustomSelect
+                            value={formData.recurringTimezone}
+                            onChange={val => setFormData({ ...formData, recurringTimezone: val })}
+                            options={TIMEZONES.map(tz => ({ value: tz, label: tz }))}
+                            style={{ width: "100%" }}
+                          />
                         </div>
                       </div>
                     )}
@@ -919,13 +879,16 @@ function AddNotificationContent() {
                             </div>
                             <div className="input-group" style={{ marginBottom: 0 }}>
                               <label style={{ fontSize: "0.75rem", fontWeight: "600", color: "#64748b", textTransform: "uppercase" }}>Timezone</label>
-                              <select className="form-control" value={schedule.timezone} onChange={(e) => {
-                                const newSchedules = [...formData.monthlySchedules];
-                                newSchedules[index].timezone = e.target.value;
-                                setFormData({ ...formData, monthlySchedules: newSchedules });
-                              }}>
-                                {TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
-                              </select>
+                              <CustomSelect
+                                value={schedule.timezone}
+                                onChange={val => {
+                                  const newSchedules = [...formData.monthlySchedules];
+                                  newSchedules[index].timezone = val;
+                                  setFormData({ ...formData, monthlySchedules: newSchedules });
+                                }}
+                                options={TIMEZONES.map(tz => ({ value: tz, label: tz }))}
+                                style={{ width: "100%" }}
+                              />
                             </div>
                             {formData.monthlySchedules.length > 1 && (
                               <button

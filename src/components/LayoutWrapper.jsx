@@ -2,33 +2,51 @@
 
 import { useState } from "react";
 import Sidebar from "./Sidebar";
-import { NotificationProvider } from "../context/NotificationContext";
-import { Menu } from "lucide-react";
+import { NotificationProvider, useNotifications } from "../context/NotificationContext";
+import { Menu, Building2 } from "lucide-react";
+import CustomSelect from "./CustomSelect";
+
+function LayoutContent({ children, isSidebarOpen, setIsSidebarOpen }) {
+  const { selectedCompany, setSelectedCompany } = useNotifications();
+
+  return (
+    <div className="app-layout">
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+
+      <div className="main-content">
+        <header className="top-header">
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            <Menu size={24} />
+          </button>
+          <div style={{ marginLeft: "auto", display: "flex", gap: "1rem", alignItems: "center" }}>
+            <CustomSelect
+              value={selectedCompany}
+              onChange={setSelectedCompany}
+              options={["MantraCare", "MantraAssist", "EyeMantra"]}
+              icon={Building2}
+              style={{ width: "200px" }}
+              className="company-dropdown"
+            />
+          </div>
+        </header>
+
+        <main className="page-content">{children}</main>
+      </div>
+    </div>
+  );
+}
 
 export default function LayoutWrapper({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <NotificationProvider>
-      <div className="app-layout">
-        <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-
-        <div className="main-content">
-          <header className="top-header">
-            <button
-              className="mobile-menu-btn"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            >
-              <Menu size={24} />
-            </button>
-            <div style={{ marginLeft: "auto", display: "flex", gap: "1rem", alignItems: "center" }}>
-              {/* Optional Top Right Content like User Avatar could go here */}
-            </div>
-          </header>
-
-          <main className="page-content">{children}</main>
-        </div>
-      </div>
+      <LayoutContent isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}>
+        {children}
+      </LayoutContent>
     </NotificationProvider>
   );
 }

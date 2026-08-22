@@ -2,61 +2,16 @@
 
 import { useState } from "react";
 import { Plus, Mail, MessageSquare, MoreVertical, X, Smartphone } from "lucide-react";
-
-const NOTIFICATION_TEMPLATES = {
-  "Signup": { 
-    subject: "Welcome to MantraCare!", 
-    email: "<h1>Welcome to MantraCare!</h1><p>Hi {{client_name}},</p><p>We are thrilled to have you on board. Explore our app to get started.</p>",
-    text: "Welcome to MantraCare, {{client_name}}! We are thrilled to have you on board. Explore our app to get started."
-  },
-  "Meeting Scheduled": { 
-    subject: "Your Meeting is Scheduled", 
-    email: "<h1>Meeting Scheduled</h1><p>Hi {{client_name}},</p><p>Your meeting with {{provider_name}} is scheduled for {{session_date}} at {{session_time}}.</p>",
-    text: "Hi {{client_name}}, your meeting with {{provider_name}} is scheduled for {{session_date}} at {{session_time}}."
-  },
-  "Meeting Link (email with link)": { 
-    subject: "Your Meeting Link", 
-    email: "<h1>Meeting Link</h1><p>Hi {{client_name}},</p><p>Here is your meeting link: <a href='{{session_link}}'>Join Session</a></p>",
-    text: "Hi {{client_name}}, here is your meeting link: {{session_link}}"
-  },
-  "Profile Edited": { 
-    subject: "Profile Updated", 
-    email: "<h1>Profile Updated</h1><p>Hi {{client_name}},</p><p>Your profile has been successfully updated.</p>",
-    text: "Hi {{client_name}}, your profile has been successfully updated."
-  },
-  "Password Reset": { 
-    subject: "Password Reset Request", 
-    email: "<h1>Password Reset</h1><p>Hi {{client_name}},</p><p>You requested a password reset. Please click the link to reset your password.</p>",
-    text: "Hi {{client_name}}, you requested a password reset. Please click the link sent to your email."
-  },
-  "Invite Code Added": { 
-    subject: "Invite Code Applied", 
-    email: "<h1>Invite Code Applied</h1><p>Hi {{client_name}},</p><p>Your invite code has been successfully added to your account.</p>",
-    text: "Hi {{client_name}}, your invite code has been successfully added to your account."
-  },
-  "Dependent Added": { 
-    subject: "Dependent Added", 
-    email: "<h1>Dependent Added</h1><p>Hi {{client_name}},</p><p>A new dependent has been added to your plan.</p>",
-    text: "Hi {{client_name}}, a new dependent has been added to your plan."
-  },
-  "Dependent Joined the Plan": { 
-    subject: "Dependent Joined", 
-    email: "<h1>Dependent Joined</h1><p>Hi {{client_name}},</p><p>Your dependent has successfully joined the plan.</p>",
-    text: "Hi {{client_name}}, your dependent has successfully joined the plan."
-  },
-  "Session Completed - Share Feedback": { 
-    subject: "How was your session?", 
-    email: "<h1>Session Completed</h1><p>Hi {{client_name}},</p><p>We hope you had a great session with {{provider_name}}. Please share your feedback.</p>",
-    text: "Hi {{client_name}}, we hope you had a great session with {{provider_name}}. Please share your feedback in the app."
-  }
-};
+import { useNotifications } from "@/context/NotificationContext";
+import CustomSelect from "@/components/CustomSelect";
 
 export default function TemplatePage() {
+  const { templates, selectedCompany } = useNotifications();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [activeTab, setActiveTab] = useState("email");
 
-  const templatesList = Object.entries(NOTIFICATION_TEMPLATES).map(([name, data]) => ({
+  const templatesList = Object.entries(templates).map(([name, data]) => ({
     name,
     ...data
   })).filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.subject.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -64,7 +19,10 @@ export default function TemplatePage() {
   return (
     <div style={{ padding: "0 2rem 2rem 2rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Notification Templates</h1>
+        <div>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: "600", color: "var(--dark)", margin: 0 }}>Notification Templates</h1>
+          <p style={{ color: "var(--text-muted)", margin: "0.25rem 0 0 0", fontSize: "0.9rem" }}>Showing templates for {selectedCompany}</p>
+        </div>
       </div>
 
       <div className="card" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
@@ -80,11 +38,12 @@ export default function TemplatePage() {
             <svg style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
           <div style={{ display: "flex", gap: "1rem" }}>
-            <select style={{ padding: "0.6rem 1rem", borderRadius: "6px", border: "1px solid var(--border-color)", outline: "none", fontSize: "0.9rem", color: "var(--dark)", backgroundColor: "white" }}>
-              <option>All Types</option>
-              <option>Email</option>
-              <option>SMS / App</option>
-            </select>
+            <CustomSelect
+              value="All Types"
+              onChange={() => {}}
+              options={["All Types", "Email", "SMS / App"]}
+              style={{ width: "150px" }}
+            />
           </div>
         </div>
 
