@@ -10,9 +10,12 @@ export default function CustomSelect({
   icon: Icon, 
   placeholder = "Select...", 
   style = {},
-  className = ""
+  className = "",
+  isMulti = false,
+  hasSearch = false
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -26,17 +29,45 @@ export default function CustomSelect({
   }, []);
 
   const handleSelect = (val) => {
-    onChange(val);
-    setIsOpen(false);
+    if (isMulti) {
+      const newValue = Array.isArray(value) ? [...value] : [];
+      if (newValue.includes(val)) {
+        onChange(newValue.filter(v => v !== val));
+      } else {
+        onChange([...newValue, val]);
+      }
+    } else {
+      onChange(val);
+      setIsOpen(false);
+      setSearchTerm("");
+    }
   };
 
-  const selectedOption = options.find(opt => 
+  const selectedOption = !isMulti && options.find(opt => 
     typeof opt === 'string' ? opt === value : opt.value === value
   );
   
-  const displayLabel = selectedOption 
-    ? (typeof selectedOption === 'string' ? selectedOption : selectedOption.label)
-    : placeholder;
+  let displayLabel = placeholder;
+  if (isMulti) {
+    if (Array.isArray(value) && value.length > 0) {
+      const selectedLabels = value.map(v => {
+        const o = options.find(opt => typeof opt === 'string' ? opt === v : opt.value === v);
+        return o ? (typeof o === 'string' ? o : o.label) : v;
+      });
+      displayLabel = selectedLabels.join(", ");
+    }
+  } else {
+    if (selectedOption) {
+      displayLabel = typeof selectedOption === 'string' ? selectedOption : selectedOption.label;
+    }
+  }
+
+  const filteredOptions = hasSearch && searchTerm
+    ? options.filter(opt => {
+        const lbl = typeof opt === 'string' ? opt : opt.label;
+        return typeof lbl === 'string' && lbl.toLowerCase().includes(searchTerm.toLowerCase());
+      })
+    : options;
 
   return (
     <div 
@@ -66,9 +97,9 @@ export default function CustomSelect({
           outline: "none"
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", overflow: "hidden", whiteSpace: "nowrap" }}>
           {Icon && <Icon size={18} color="var(--primary)" />}
-          <span>{displayLabel}</span>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{displayLabel}</span>
         </div>
         <ChevronDown 
           size={16} 
@@ -99,47 +130,68 @@ export default function CustomSelect({
             overflowY: "auto"
           }}
         >
-          {options.map((opt, idx) => {
-            const optValue = typeof opt === 'string' ? opt : opt.value;
-            const optLabel = typeof opt === 'string' ? opt : opt.label;
-            const isSelected = optValue === value;
+          {hasSearch && (
+            <div style={{ padding: "0.5rem", borderBottom: "1px solid var(--border-color)", marginBottom: "0.2rem" }}>
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                style={{ width: "100%", padding: "0.4rem 0.6rem", border: "1px solid var(--border-color)", borderRadius: "4px", outline: "none", fontSize: "0.85rem", boxSizing: "border-box" }}
+              />
+            </div>
+          )}
+          {filteredOptions.length === 0 ? (
+            <div style={{ padding: "0.6rem 0.8rem", color: "var(--text-muted)", fontSize: "0.9rem", textAlign: "center" }}>No results found</div>
+          ) : (
+            filteredOptions.map((opt, idx) => {
+              const optValue = typeof opt === 'string' ? opt : opt.value;
+              const optLabel = typeof opt === 'string' ? opt : opt.label;
+              const isSelected = isMulti ? (Array.isArray(value) && value.includes(optValue)) : optValue === value;
 
-            return (
-              <button
-                key={idx}
-                onClick={() => handleSelect(optValue)}
-                style={{
-                  display: "block",
-                  width: "100%",
-                  textAlign: "left",
-                  padding: "0.6rem 0.8rem",
-                  backgroundColor: isSelected ? "var(--primary-light)" : "transparent",
-                  color: isSelected ? "var(--primary)" : "var(--text-main)",
-                  border: "none",
-                  borderRadius: "0.5rem",
-                  cursor: "pointer",
-                  fontSize: "0.9rem",
-                  fontWeight: isSelected ? "600" : "500",
-                  transition: "all 0.15s ease",
-                  marginBottom: idx !== options.length - 1 ? "0.2rem" : 0
-                }}
-                onMouseOver={(e) => {
-                  if (!isSelected) {
-                    e.currentTarget.style.backgroundColor = "#f1f5f9";
-                    e.currentTarget.style.color = "var(--dark)";
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (!isSelected) {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = "var(--text-main)";
-                  }
-                }}
-              >
-                {optLabel}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={idx}
+                  onClick={(e) => { e.stopPropagation(); handleSelect(optValue); }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "0.6rem 0.8rem",
+                    backgroundColor: isSelected && !isMulti ? "var(--primary-light)" : "transparent",
+                    color: isSelected && !isMulti ? "var(--primary)" : "var(--text-main)",
+                    border: "none",
+                    borderRadius: "0.5rem",
+                    cursor: "pointer",
+                    fontSize: "0.9rem",
+                    fontWeight: isSelected && !isMulti ? "600" : "500",
+                    transition: "all 0.15s ease",
+                    marginBottom: idx !== filteredOptions.length - 1 ? "0.2rem" : 0
+                  }}
+                  onMouseOver={(e) => {
+                    if (!isSelected || isMulti) {
+                      e.currentTarget.style.backgroundColor = "#f1f5f9";
+                      e.currentTarget.style.color = "var(--dark)";
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!isSelected || isMulti) {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.color = "var(--text-main)";
+                    }
+                  }}
+                >
+                  <span>{optLabel}</span>
+                  {isMulti && (
+                    <input type="checkbox" checked={isSelected} readOnly style={{ pointerEvents: "none" }} />
+                  )}
+                </button>
+              );
+            })
+          )}
         </div>
       )}
       <style>{`

@@ -146,7 +146,7 @@ function OrganizationEditContent() {
           <div style={{ marginBottom: "2rem", backgroundColor: "#f8fafc", padding: "1rem", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
             <label style={{ display: "block", fontSize: "0.9rem", fontWeight: "600", color: "var(--dark)", marginBottom: "0.75rem" }}>Types of request logs to create:</label>
             <div style={{ display: "flex", gap: "1.5rem" }}>
-              {["Received", "Sent", "Viewed", "Failed"].map(logType => (
+              {["Received", "Sent", "Viewed", "Failed", "Skipped"].map(logType => (
                 <label key={logType} style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.9rem" }}>
                   <input type="checkbox" defaultChecked style={{ width: "16px", height: "16px", accentColor: "var(--primary)" }} />
                   {logType}

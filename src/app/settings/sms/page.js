@@ -30,7 +30,7 @@ export default function SmsSettingsPage() {
 
   // Form States
   const [providerForm, setProviderForm] = useState({ connectionName: "", provider: "Twilio", accountSid: "", authToken: "", userName: "", password: "" });
-  const [numberForm, setNumberForm] = useState({ number: "", providerId: "", priority: "Normal" });
+  const [numberForm, setNumberForm] = useState({ number: "", providerId: "", priority: "Normal", country: ["India"] });
 
   // Handlers for Provider
   const openProviderModal = (provider = null) => {
@@ -82,10 +82,10 @@ export default function SmsSettingsPage() {
   const openNumberModal = (numberObj = null) => {
     if (numberObj) {
       setEditingNumber(numberObj);
-      setNumberForm({ number: numberObj.number, providerId: numberObj.providerId, priority: numberObj.priority });
+      setNumberForm({ number: numberObj.number, providerId: numberObj.providerId, priority: numberObj.priority, country: Array.isArray(numberObj.country) ? numberObj.country : (numberObj.country ? [numberObj.country] : ["India"]) });
     } else {
       setEditingNumber(null);
-      setNumberForm({ number: "", providerId: providers.length > 0 ? providers[0].id : "", priority: "Normal" });
+      setNumberForm({ number: "", providerId: providers.length > 0 ? providers[0].id : "", priority: "Normal", country: ["India"] });
     }
     setIsNumberModalOpen(true);
   };
@@ -170,9 +170,12 @@ export default function SmsSettingsPage() {
                       <td style={{ padding: "1rem", color: "var(--primary)", fontWeight: "500" }}>{num.number}</td>
                       <td style={{ padding: "1rem", color: "var(--text-main)" }}>{provider ? provider.connectionName : "Unknown"}</td>
                       <td style={{ padding: "1rem" }}>
-                        <span style={{ padding: "0.25rem 0.75rem", backgroundColor: num.priority === "High" ? "#fee2e2" : "#f1f5f9", color: num.priority === "High" ? "#b91c1c" : "var(--dark)", borderRadius: "100px", fontSize: "0.8rem", fontWeight: "600" }}>
-                          {num.priority}
-                        </span>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                          <span style={{ padding: "0.25rem 0.75rem", backgroundColor: num.priority === "High" ? "#fee2e2" : "#f1f5f9", color: num.priority === "High" ? "#b91c1c" : "var(--dark)", borderRadius: "100px", fontSize: "0.8rem", fontWeight: "600", width: "fit-content" }}>
+                            {num.priority}
+                          </span>
+                          <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: "500" }}>{Array.isArray(num.country) ? num.country.join(", ") : (num.country || "India")}</span>
+                        </div>
                       </td>
                       <td style={{ padding: "1rem", textAlign: "right" }}>
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
@@ -347,6 +350,18 @@ export default function SmsSettingsPage() {
                   onChange={val => setNumberForm({...numberForm, priority: val})}
                   options={["Normal", "High"]}
                   style={{ width: "100%" }}
+                />
+              </div>
+
+              <div className="input-group">
+                <label className="form-label">Allowed Country</label>
+                <CustomSelect 
+                  value={numberForm.country} 
+                  onChange={val => setNumberForm({...numberForm, country: val})}
+                  options={["India", "USA", "UK", "Australia", "Global"]}
+                  style={{ width: "100%" }}
+                  isMulti={true}
+                  hasSearch={true}
                 />
               </div>
             </div>

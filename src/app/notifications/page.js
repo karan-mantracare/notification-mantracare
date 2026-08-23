@@ -264,8 +264,8 @@ export default function NotificationsPage() {
                           borderRadius: "4px", 
                           fontSize: "0.8rem", 
                           fontWeight: "500",
-                          backgroundColor: log.event === "Failed" ? "#fee2e2" : log.event === "Received" ? "#dcfce7" : log.event === "Viewed" ? "#f3e8ff" : "#e0f2fe",
-                          color: log.event === "Failed" ? "#991b1b" : log.event === "Received" ? "#166534" : log.event === "Viewed" ? "#6b21a8" : "#075985"
+                          backgroundColor: log.event === "Failed" ? "#fee2e2" : log.event === "Received" ? "#dcfce7" : log.event === "Viewed" ? "#f3e8ff" : log.event === "Skipped" ? "#fef3c7" : "#e0f2fe",
+                          color: log.event === "Failed" ? "#991b1b" : log.event === "Received" ? "#166534" : log.event === "Viewed" ? "#6b21a8" : log.event === "Skipped" ? "#92400e" : "#075985"
                         }}>
                           {log.event}
                         </span>
@@ -310,8 +310,8 @@ export default function NotificationsPage() {
                   fontSize: "0.85rem", 
                   fontWeight: "600",
                   width: "fit-content",
-                  backgroundColor: selectedLog.event === "Failed" ? "#fee2e2" : selectedLog.event === "Received" ? "#dcfce7" : selectedLog.event === "Viewed" ? "#f3e8ff" : "#e0f2fe",
-                  color: selectedLog.event === "Failed" ? "#991b1b" : selectedLog.event === "Received" ? "#166534" : selectedLog.event === "Viewed" ? "#6b21a8" : "#075985"
+                  backgroundColor: selectedLog.event === "Failed" ? "#fee2e2" : selectedLog.event === "Received" ? "#dcfce7" : selectedLog.event === "Viewed" ? "#f3e8ff" : selectedLog.event === "Skipped" ? "#fef3c7" : "#e0f2fe",
+                  color: selectedLog.event === "Failed" ? "#991b1b" : selectedLog.event === "Received" ? "#166534" : selectedLog.event === "Viewed" ? "#6b21a8" : selectedLog.event === "Skipped" ? "#92400e" : "#075985"
                 }}>
                   {selectedLog.event}
                 </span>
@@ -324,6 +324,7 @@ export default function NotificationsPage() {
                   {selectedLog.event === "Received" && <span>Date and time request received: <br/><strong>{selectedLog.timestamp}</strong></span>}
                   {selectedLog.event === "Viewed" && <span>Date and time user viewed it: <br/><strong>{selectedLog.timestamp}</strong></span>}
                   {selectedLog.event === "Failed" && <span>Attempt date and time: <br/><strong>{selectedLog.timestamp}</strong></span>}
+                  {selectedLog.event === "Skipped" && <span>Date and time skipped: <br/><strong>{selectedLog.timestamp}</strong></span>}
                 </div>
               </div>
 
@@ -336,11 +337,11 @@ export default function NotificationsPage() {
                 </div>
               )}
 
-              {selectedLog.event === "Failed" && selectedLog.error && (
+              {(selectedLog.event === "Failed" || selectedLog.event === "Skipped") && (selectedLog.error || selectedLog.reason) && (
                 <div style={{ display: "grid", gridTemplateColumns: "100px 1fr", gap: "1rem", alignItems: "flex-start" }}>
-                  <span style={{ fontWeight: "600", color: "var(--text-muted)", fontSize: "0.9rem" }}>Error Details:</span>
-                  <div style={{ color: "var(--danger)", backgroundColor: "#fee2e2", padding: "0.75rem", borderRadius: "6px", fontSize: "0.9rem", border: "1px solid #fecaca" }}>
-                    {selectedLog.error}
+                  <span style={{ fontWeight: "600", color: "var(--text-muted)", fontSize: "0.9rem" }}>{selectedLog.event === "Skipped" ? "Reason:" : "Error Details:"}</span>
+                  <div style={{ color: selectedLog.event === "Skipped" ? "#92400e" : "var(--danger)", backgroundColor: selectedLog.event === "Skipped" ? "#fef3c7" : "#fee2e2", padding: "0.75rem", borderRadius: "6px", fontSize: "0.9rem", border: selectedLog.event === "Skipped" ? "1px solid #fde68a" : "1px solid #fecaca" }}>
+                    {selectedLog.error || selectedLog.reason}
                   </div>
                 </div>
               )}

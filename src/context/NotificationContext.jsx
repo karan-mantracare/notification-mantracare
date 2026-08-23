@@ -25,6 +25,7 @@ const MOCK_DATA = {
       { id: 2, notificationId: 10045, sentTo: "USR-001 / Device-X", serviceType: "Email", event: "Viewed", timestamp: "2026-08-18 10:45:00", error: "", templateId: "TPL-892" },
       { id: 3, notificationId: 10046, sentTo: "+91 9876543210", serviceType: "SMS", event: "Failed", timestamp: "2026-08-17 09:00:00", error: "Carrier rejected", templateId: "TPL-893" },
       { id: 4, notificationId: 10046, sentTo: "+91 9876543211", serviceType: "SMS", event: "Received", timestamp: "2026-08-17 09:00:05", error: "", templateId: "TPL-893" },
+      { id: 5, notificationId: 10046, sentTo: "+1 415-555-1234", serviceType: "SMS", event: "Skipped", timestamp: "2026-08-22 16:30:00", reason: "Country not Added in provider", templateId: "TPL-893" },
     ],
     emailSettings: {
       providers: [{ id: 1, connectionName: "MantraCare Sendgrid", provider: "Sendgrid", details: { authToken: "sg.mantracare" } }],
@@ -59,6 +60,7 @@ const MOCK_DATA = {
     logs: [
       { id: 5, notificationId: 2001, sentTo: "MA-112 / Web", serviceType: "App Notification", event: "Sent", timestamp: "2026-08-20 14:20:00", error: "", templateId: "TPL-304" },
       { id: 6, notificationId: 2001, sentTo: "MA-112 / Web", serviceType: "App Notification", event: "Viewed", timestamp: "2026-08-20 15:00:00", error: "", templateId: "TPL-304" },
+      { id: 7, notificationId: 2001, sentTo: "+1 415-555-2671", serviceType: "SMS", event: "Skipped", timestamp: "2026-08-22 16:30:00", reason: "Country not Added in provider", templateId: "TPL-305" },
     ],
     emailSettings: {
       providers: [{ id: 1, connectionName: "MantraAssist SES", provider: "SES", details: { clientId: "AKIAIOSFODNN7EXAMPLE", secretKey: "wJalrXU" } }],
@@ -224,6 +226,55 @@ export function NotificationProvider({ children }) {
     }));
   };
 
+  const addTemplate = (templateName, templateData) => {
+    setAllData(prev => {
+      const companyData = prev[selectedCompany];
+      return {
+        ...prev,
+        [selectedCompany]: {
+          ...companyData,
+          templates: {
+            ...companyData.templates,
+            [templateName]: templateData
+          }
+        }
+      };
+    });
+  };
+
+  const updateTemplate = (oldName, newName, templateData) => {
+    setAllData(prev => {
+      const companyData = prev[selectedCompany];
+      const newTemplates = { ...companyData.templates };
+      if (oldName !== newName) {
+        delete newTemplates[oldName];
+      }
+      newTemplates[newName] = templateData;
+      return {
+        ...prev,
+        [selectedCompany]: {
+          ...companyData,
+          templates: newTemplates
+        }
+      };
+    });
+  };
+
+  const deleteTemplate = (templateName) => {
+    setAllData(prev => {
+      const companyData = prev[selectedCompany];
+      const newTemplates = { ...companyData.templates };
+      delete newTemplates[templateName];
+      return {
+        ...prev,
+        [selectedCompany]: {
+          ...companyData,
+          templates: newTemplates
+        }
+      };
+    });
+  };
+
   return (
     <NotificationContext.Provider
       value={{ 
@@ -231,7 +282,8 @@ export function NotificationProvider({ children }) {
         templates, notifications, logs, triggers, emailSettings, smsSettings,
         addNotification, deleteNotification, updateNotification,
         addTrigger, deleteTrigger, updateTrigger,
-        updateEmailSettings, updateSmsSettings
+        updateEmailSettings, updateSmsSettings,
+        addTemplate, updateTemplate, deleteTemplate
       }}
     >
       {children}
