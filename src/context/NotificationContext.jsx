@@ -38,6 +38,9 @@ const MOCK_DATA = {
       providers: [{ id: 1, connectionName: "Mantra Twilio", provider: "Twilio", details: { accountSid: "AC...", authToken: "..." } }],
       numbers: [
         { id: 1, number: "+91 9999999999", providerId: 1, priority: "High" }
+      ],
+      senderIds: [
+        { id: 1, route: "Transactional", senderId: "MANTRA", peId: "1234567890" }
       ]
     }
   },
@@ -72,7 +75,8 @@ const MOCK_DATA = {
       providers: [{ id: 1, connectionName: "MSG91 Main", provider: "MSG91", details: { authToken: "..." } }],
       numbers: [
         { id: 1, number: "+91 8888888888", providerId: 1, priority: "High" }
-      ]
+      ],
+      senderIds: []
     }
   },
   EyeMantra: {
@@ -107,7 +111,8 @@ const MOCK_DATA = {
       providers: [{ id: 1, connectionName: "BulkSMSGateway Default", provider: "BulkSMSGateway", details: { userName: "...", password: "..." } }],
       numbers: [
         { id: 1, number: "+91 7777777777", providerId: 1, priority: "High" }
-      ]
+      ],
+      senderIds: []
     }
   }
 };

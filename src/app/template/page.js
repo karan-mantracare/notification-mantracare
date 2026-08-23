@@ -83,7 +83,7 @@ const RichTextEditor = ({ value, onChange }) => {
 };
 
 export default function TemplatePage() {
-  const { templates, selectedCompany, addTemplate, updateTemplate, deleteTemplate, smsSettings } = useNotifications();
+  const { templates, selectedCompany, addTemplate, updateTemplate, deleteTemplate, smsSettings, updateSmsSettings } = useNotifications();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("email");
   
@@ -101,8 +101,25 @@ export default function TemplatePage() {
   const [showAddSenderId, setShowAddSenderId] = useState(false);
   const [newSenderIdForm, setNewSenderIdForm] = useState({ route: "Transactional", senderId: "", peId: "" });
 
-  const senderId = smsSettings?.providers?.[0]?.connectionName || "MTRSMS";
-  const senderIdOptions = [senderId, { value: "ADD_NEW", label: <span style={{ color: "var(--primary)", display: "flex", alignItems: "center", gap: "0.25rem" }}><Plus size={14} /> Add Sender ID</span> }];
+  const existingSenderIds = smsSettings?.senderIds || [];
+  const defaultSenderId = existingSenderIds.length > 0 ? existingSenderIds[0].senderId : (smsSettings?.providers?.[0]?.connectionName || "MTRSMS");
+  const senderIdOptions = [
+    ...existingSenderIds.map(s => s.senderId),
+    defaultSenderId,
+    { value: "ADD_NEW", label: <span style={{ color: "var(--primary)", display: "flex", alignItems: "center", gap: "0.25rem" }}><Plus size={14} /> Add Sender ID</span> }
+  ].filter((v, i, a) => a.indexOf(v) === i || typeof v === "object"); // Deduplicate string values
+
+  const handleAddSenderIdSubmit = () => {
+    if (!newSenderIdForm.senderId) {
+      alert("Please enter a Sender ID");
+      return;
+    }
+    const newId = existingSenderIds.length > 0 ? Math.max(...existingSenderIds.map(s => s.id)) + 1 : 1;
+    const newSenderIdObj = { id: newId, ...newSenderIdForm };
+    updateSmsSettings({ ...(smsSettings || {}), senderIds: [...existingSenderIds, newSenderIdObj] });
+    setShowAddSenderId(false);
+    setNewSenderIdForm({ route: "Transactional", senderId: "", peId: "" });
+  };
 
   const templatesList = Object.entries(templates).map(([name, data]) => ({
     name,
@@ -353,7 +370,7 @@ export default function TemplatePage() {
                           <div style={{ display: "flex", gap: "1rem" }}>
                             <div style={{ flex: 1 }}>
                               <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--dark)", marginBottom: "0.5rem" }}>Select Sender ID*</label>
-                              <CustomSelect value={senderId} onChange={(val) => { if(val === "ADD_NEW") setShowAddSenderId(true); }} options={senderIdOptions} style={{ width: "100%", padding: "0.75rem", borderRadius: "6px", border: "1px solid var(--border-color)" }} />
+                              <CustomSelect value={defaultSenderId} onChange={(val) => { if(val === "ADD_NEW") setShowAddSenderId(true); }} options={senderIdOptions} style={{ width: "100%", padding: "0.75rem", borderRadius: "6px", border: "1px solid var(--border-color)" }} />
                             </div>
                             <div style={{ flex: 1 }}>
                               <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--dark)", marginBottom: "0.5rem" }}>DLT Template ID</label>
@@ -398,7 +415,7 @@ export default function TemplatePage() {
                           <div style={{ display: "flex", gap: "1rem" }}>
                             <div style={{ flex: 1 }}>
                               <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--dark)", marginBottom: "0.5rem" }}>Select Sender ID*</label>
-                              <CustomSelect value={senderId} onChange={(val) => { if(val === "ADD_NEW") setShowAddSenderId(true); }} options={senderIdOptions} style={{ width: "100%", padding: "0.75rem", borderRadius: "6px", border: "1px solid var(--border-color)" }} />
+                              <CustomSelect value={defaultSenderId} onChange={(val) => { if(val === "ADD_NEW") setShowAddSenderId(true); }} options={senderIdOptions} style={{ width: "100%", padding: "0.75rem", borderRadius: "6px", border: "1px solid var(--border-color)" }} />
                             </div>
                             <div style={{ flex: 1 }}>
                               <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--dark)", marginBottom: "0.5rem" }}>DLT Template ID</label>
@@ -484,7 +501,7 @@ export default function TemplatePage() {
             </div>
 
             <div style={{ display: "flex", gap: "0.75rem", marginTop: "2rem" }}>
-              <button className="btn btn-primary" onClick={() => { alert("Sender ID added successfully!"); setShowAddSenderId(false); }} style={{ backgroundColor: "#10b981", borderColor: "#10b981", padding: "0.5rem 1.25rem" }}>Submit</button>
+              <button className="btn btn-primary" onClick={handleAddSenderIdSubmit} style={{ backgroundColor: "#10b981", borderColor: "#10b981", padding: "0.5rem 1.25rem" }}>Submit</button>
               <button className="btn btn-primary" onClick={() => setNewSenderIdForm({ route: "Transactional", senderId: "", peId: "" })} style={{ backgroundColor: "#3b82f6", borderColor: "#3b82f6", padding: "0.5rem 1.25rem" }}>Reset</button>
               <div style={{ flex: 1 }}></div>
               <button className="btn btn-outline" onClick={() => setShowAddSenderId(false)}>Cancel</button>

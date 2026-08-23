@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Edit, Trash2, X, Phone, Server } from "lucide-react";
+import { Plus, Edit, Trash2, X, Phone, Server, Tag } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNotifications } from "@/context/NotificationContext";
 import CustomSelect from "@/components/CustomSelect";
@@ -12,6 +12,7 @@ export default function SmsSettingsPage() {
 
   const providers = smsSettings?.providers || [];
   const numbers = smsSettings?.numbers || [];
+  const senderIds = smsSettings?.senderIds || [];
 
   const setProviders = (newProviders) => {
     updateSmsSettings({ ...(smsSettings || {}), providers: newProviders });
@@ -21,6 +22,10 @@ export default function SmsSettingsPage() {
     updateSmsSettings({ ...(smsSettings || {}), numbers: newNumbers });
   };
 
+  const setSenderIds = (newSenderIds) => {
+    updateSmsSettings({ ...(smsSettings || {}), senderIds: newSenderIds });
+  };
+
   // Modals State
   const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
   const [editingProvider, setEditingProvider] = useState(null);
@@ -28,9 +33,13 @@ export default function SmsSettingsPage() {
   const [isNumberModalOpen, setIsNumberModalOpen] = useState(false);
   const [editingNumber, setEditingNumber] = useState(null);
 
+  const [isSenderIdModalOpen, setIsSenderIdModalOpen] = useState(false);
+  const [editingSenderId, setEditingSenderId] = useState(null);
+
   // Form States
   const [providerForm, setProviderForm] = useState({ connectionName: "", provider: "Twilio", accountSid: "", authToken: "", userName: "", password: "" });
   const [numberForm, setNumberForm] = useState({ number: "", providerId: "", priority: "Normal", country: ["India"] });
+  const [senderIdForm, setSenderIdForm] = useState({ route: "Transactional", senderId: "", peId: "" });
 
   // Handlers for Provider
   const openProviderModal = (provider = null) => {
@@ -111,6 +120,39 @@ export default function SmsSettingsPage() {
     toast.success("Number deleted");
   };
 
+  // Handlers for Sender ID
+  const openSenderIdModal = (senderObj = null) => {
+    if (senderObj) {
+      setEditingSenderId(senderObj);
+      setSenderIdForm({ route: senderObj.route, senderId: senderObj.senderId, peId: senderObj.peId });
+    } else {
+      setEditingSenderId(null);
+      setSenderIdForm({ route: "Transactional", senderId: "", peId: "" });
+    }
+    setIsSenderIdModalOpen(true);
+  };
+
+  const saveSenderId = () => {
+    if (!senderIdForm.senderId) {
+      toast.error("Please enter a Sender ID");
+      return;
+    }
+    if (editingSenderId) {
+      setSenderIds(senderIds.map(s => s.id === editingSenderId.id ? { ...s, ...senderIdForm } : s));
+      toast.success("Sender ID updated");
+    } else {
+      const newId = senderIds.length > 0 ? Math.max(...senderIds.map(s => s.id)) + 1 : 1;
+      setSenderIds([...senderIds, { id: newId, ...senderIdForm }]);
+      toast.success("Sender ID added");
+    }
+    setIsSenderIdModalOpen(false);
+  };
+
+  const deleteSenderId = (id) => {
+    setSenderIds(senderIds.filter(s => s.id !== id));
+    toast.success("Sender ID deleted");
+  };
+
   return (
     <div style={{ padding: "0 2rem 2rem 2rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
@@ -122,9 +164,13 @@ export default function SmsSettingsPage() {
           <button className="btn btn-primary" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }} onClick={() => openNumberModal()}>
             <span>Add New Number</span> <Plus size={18} />
           </button>
-        ) : (
+        ) : activeTab === "provider" ? (
           <button className="btn btn-primary" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }} onClick={() => openProviderModal()}>
             <span>Connect Provider</span> <Plus size={18} />
+          </button>
+        ) : (
+          <button className="btn btn-primary" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }} onClick={() => openSenderIdModal()}>
+            <span>Add Sender ID</span> <Plus size={18} />
           </button>
         )}
       </div>
@@ -141,6 +187,12 @@ export default function SmsSettingsPage() {
           onClick={() => setActiveTab("provider")}
         >
           <Server size={16} /> Providers
+        </button>
+        <button 
+          style={{ padding: "1rem 1.5rem", background: "none", border: "none", borderBottom: activeTab === "sender" ? "2px solid #1a73e8" : "2px solid transparent", color: activeTab === "sender" ? "#1a73e8" : "var(--text-muted)", fontWeight: activeTab === "sender" ? "600" : "500", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}
+          onClick={() => setActiveTab("sender")}
+        >
+          <Tag size={16} /> Sender ID
         </button>
       </div>
 
@@ -220,6 +272,46 @@ export default function SmsSettingsPage() {
                       <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
                         <button className="btn btn-outline" style={{ padding: "0.25rem 0.5rem" }} onClick={() => openProviderModal(provider)}><Edit size={16} /></button>
                         <button className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", color: "var(--danger)", borderColor: "transparent" }} onClick={() => deleteProvider(provider.id)}><Trash2 size={16} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {activeTab === "sender" && (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}>
+              <thead>
+                <tr style={{ borderBottom: "2px solid var(--border-color)", textAlign: "left" }}>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>ID</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Route</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>Sender ID</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase" }}>PE ID (Entity ID)</th>
+                  <th style={{ padding: "1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase", textAlign: "right" }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {senderIds.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>No Sender IDs configured</td>
+                  </tr>
+                ) : senderIds.map(sender => (
+                  <tr key={sender.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                    <td style={{ padding: "1rem", fontWeight: "500", color: "var(--dark)" }}>{sender.id}</td>
+                    <td style={{ padding: "1rem" }}>
+                      <span style={{ padding: "0.25rem 0.75rem", backgroundColor: sender.route === "Transactional" ? "#e0e7ff" : "#fce7f3", color: sender.route === "Transactional" ? "#4f46e5" : "#db2777", borderRadius: "100px", fontSize: "0.8rem", fontWeight: "600" }}>
+                        {sender.route}
+                      </span>
+                    </td>
+                    <td style={{ padding: "1rem", color: "var(--primary)", fontWeight: "600", fontSize: "1rem", letterSpacing: "1px" }}>{sender.senderId}</td>
+                    <td style={{ padding: "1rem", color: "var(--text-main)", fontFamily: "monospace" }}>{sender.peId || "-"}</td>
+                    <td style={{ padding: "1rem", textAlign: "right" }}>
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+                        <button className="btn btn-outline" style={{ padding: "0.25rem 0.5rem" }} onClick={() => openSenderIdModal(sender)}><Edit size={16} /></button>
+                        <button className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", color: "var(--danger)", borderColor: "transparent" }} onClick={() => deleteSenderId(sender.id)}><Trash2 size={16} /></button>
                       </div>
                     </td>
                   </tr>
@@ -369,6 +461,63 @@ export default function SmsSettingsPage() {
             <div style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border-color)", display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
               <button className="btn btn-outline" onClick={() => setIsNumberModalOpen(false)}>Cancel</button>
               <button className="btn btn-primary" onClick={saveNumber}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sender ID Modal */}
+      {isSenderIdModalOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(15, 23, 42, 0.4)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setIsSenderIdModalOpen(false)}>
+          <div style={{ width: "450px", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", display: "flex", flexDirection: "column" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: "1.1rem", fontWeight: "600", margin: 0, color: "var(--dark)" }}>{editingSenderId ? "Edit Sender ID" : "Add Sender ID"}</h2>
+              <button style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }} onClick={() => setIsSenderIdModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <label className="form-label">Route</label>
+                <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", cursor: "pointer" }}>
+                    <input type="radio" name="routeSettings" checked={senderIdForm.route === "Transactional"} onChange={() => setSenderIdForm({ ...senderIdForm, route: "Transactional" })} style={{ accentColor: "var(--primary)" }} /> Transactional
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", cursor: "pointer" }}>
+                    <input type="radio" name="routeSettings" checked={senderIdForm.route === "Promotional"} onChange={() => setSenderIdForm({ ...senderIdForm, route: "Promotional" })} style={{ accentColor: "var(--primary)" }} /> Promotional
+                  </label>
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label className="form-label">Sender ID</label>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  placeholder="e.g. MANTRA" 
+                  value={senderIdForm.senderId} 
+                  onChange={e => setSenderIdForm({...senderIdForm, senderId: e.target.value.toUpperCase()})}
+                  maxLength={6}
+                />
+                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>Must be exactly 6 alphabetic characters (e.g. MANTRA).</span>
+              </div>
+
+              <div className="input-group">
+                <label className="form-label">PE ID (Entity ID)</label>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  placeholder="Add PE ID" 
+                  value={senderIdForm.peId} 
+                  onChange={e => setSenderIdForm({...senderIdForm, peId: e.target.value})} 
+                />
+              </div>
+            </div>
+
+            <div style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border-color)", display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
+              <button className="btn btn-outline" onClick={() => setIsSenderIdModalOpen(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={saveSenderId}>Save</button>
             </div>
           </div>
         </div>
